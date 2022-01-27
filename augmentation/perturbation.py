@@ -6,7 +6,12 @@
 import random
 from random import shuffle
 from nltk.corpus import stopwords
-random.seed(1)
+from googletrans import Translator
+import copy
+
+translator = Translator()
+
+# random.seed(42)
 
 #stop words list
 stop_words = []
@@ -47,16 +52,25 @@ def get_only_chars(line):
 #nltk.download('wordnet')
 from nltk.corpus import wordnet 
 
-def synonym_replacement(words, n):
+def synonym_replacement(words, n, lang="jw"):
 	new_words = words.copy()
-	random_word_list = list(set([word for word in words if word not in stop_words]))
+	# random_word_list = list(set([word for word in words if word not in stop_words]))
+	random_word_list = copy.copy(words)
+	# print(random_word_list)
 	random.shuffle(random_word_list)
+	# print(random_word_list)
+
 	num_replaced = 0
 	for random_word in random_word_list:
-		synonyms = get_synonyms(random_word)
+		# synonyms = get_synonyms(random_word)
+		synonyms = [random_word]
+		print(synonyms)
 		if len(synonyms) >= 1:
 			synonym = random.choice(list(synonyms))
-			new_words = [synonym if word == random_word else word for word in new_words]
+			# print(synonym)
+			translated_synonym = translator.translate(synonym, dest=lang)
+			# print(translated_synonym.text)
+			new_words = [translated_synonym.text if word == random_word else word for word in new_words]
 			#print("replaced", random_word, "with", synonym)
 			num_replaced += 1
 		if num_replaced >= n: #only replace up to n words
@@ -65,12 +79,11 @@ def synonym_replacement(words, n):
 	#this is stupid but we need it, trust me
 	sentence = ' '.join(new_words)
 	new_words = sentence.split(' ')
-
 	return new_words
 
 def get_synonyms(word):
 	synonyms = set()
-	for syn in wordnet.synsets(word, lang="ind"): 
+	for syn in wordnet.synsets(word): 
 		for l in syn.lemmas(): 
 			synonym = l.name().replace("_", " ").replace("-", " ").lower()
 			synonym = "".join([char for char in synonym if char in ' qwertyuiopasdfghjklzxcvbnm'])
@@ -171,6 +184,7 @@ def eda(sentence, alpha_sr=0.1, alpha_ri=0.1, alpha_rs=0.1, p_rd=0.1, num_aug=9)
 		for _ in range(num_new_per_technique):
 			a_words = synonym_replacement(words, n_sr)
 			augmented_sentences.append(' '.join(a_words))
+			print(augmented_sentences)
 
 	#ri
 	if (alpha_ri > 0):
@@ -192,29 +206,35 @@ def eda(sentence, alpha_sr=0.1, alpha_ri=0.1, alpha_rs=0.1, p_rd=0.1, num_aug=9)
 			a_words = random_deletion(words, p_rd)
 			augmented_sentences.append(' '.join(a_words))
 
-	augmented_sentences = [get_only_chars(sentence) for sentence in augmented_sentences]
-	shuffle(augmented_sentences)
+	# augmented_sentences = [get_only_chars(sentence) for sentence in augmented_sentences]
+	# shuffle(augmented_sentences)
 
-	#trim so that we have the desired number of augmented sentences
-	if num_aug >= 1:
-		augmented_sentences = augmented_sentences[:num_aug]
-	else:
-		keep_prob = num_aug / len(augmented_sentences)
-		augmented_sentences = [s for s in augmented_sentences if random.uniform(0, 1) < keep_prob]
+	# #trim so that we have the desired number of augmented sentences
+	# if num_aug >= 1:
+	# 	augmented_sentences = augmented_sentences[:num_aug]
+	# else:
+	# 	keep_prob = num_aug / len(augmented_sentences)
+	# 	augmented_sentences = [s for s in augmented_sentences if random.uniform(0, 1) < keep_prob]
 
-	#append the original sentence
-	augmented_sentences.append(sentence)
+	# #append the original sentence
+	# augmented_sentences.append(sentence)
 
 	return augmented_sentences
 
+# code
+
 augmented_sent = eda(
-    "halo kawan apa kabarmu",
+    "membaca buku asyik sekali",
     alpha_sr=0.1, 
     alpha_ri=0.1, 
     alpha_rs=0, 
     p_rd=0, 
-    num_aug=9
+    num_aug=0
 )
 
 print(augmented_sent)
-print(int(9/4)+1)
+# print(int(9/4)+1)
+
+# print(get_synonyms("makan"))
+
+# print(translator.translate("makan", src='id', dest="jw").text)
