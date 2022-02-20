@@ -1,0 +1,16 @@
+[I 2022-02-20 13:17:41.749 ServerApp] jupyterlab | extension was successfully linked.
+[I 2022-02-20 13:17:41.931 ServerApp] nbclassic | extension was successfully linked.
+[I 2022-02-20 13:17:41.957 ServerApp] nbclassic | extension was successfully loaded.
+[I 2022-02-20 13:17:41.958 LabApp] JupyterLab extension loaded from /home/m13518040/.local/lib/python3.8/site-packages/jupyterlab
+[I 2022-02-20 13:17:41.958 LabApp] JupyterLab application directory is /home/m13518040/.local/share/jupyter/lab
+[I 2022-02-20 13:17:41.961 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2022-02-20 13:17:41.961 ServerApp] The port 8888 is already in use, trying another port.
+[I 2022-02-20 13:17:41.962 ServerApp] The port 8889 is already in use, trying another port.
+[I 2022-02-20 13:17:41.962 ServerApp] The port 8890 is already in use, trying another port.
+[I 2022-02-20 13:17:41.962 ServerApp] The port 8891 is already in use, trying another port.
+[I 2022-02-20 13:17:41.962 ServerApp] The port 8892 is already in use, trying another port.
+[I 2022-02-20 13:17:41.962 ServerApp] Serving notebooks from local directory: /home/m13518040/Farid
+[I 2022-02-20 13:17:41.962 ServerApp] Jupyter Server 1.11.2 is running at:
+[I 2022-02-20 13:17:41.962 ServerApp] http://localhost:8944/lab
+[I 2022-02-20 13:17:41.963 ServerApp]  or http://127.0.0.1:8944/lab
+[I 2022-02-20 13:17:41.963 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).

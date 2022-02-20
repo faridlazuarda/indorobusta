@@ -1,0 +1,30 @@
+import numpy as np
+import tensorflow
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+tf.disable_eager_execution()
+import tensorflow_hub as hub
+
+class USE(object):
+    def __init__(self):
+        super(USE, self).__init__()
+        module_url = "https://tfhub.dev/google/universal-sentence-encoder/4" #@param ["https://tfhub.dev/google/universal-sentence-encoder/4", "https://tfhub.dev/google/universal-sentence-encoder-large/5"]
+        self.embed = hub.load(module_url)
+        
+        def embed(input):
+            return model(input)
+        
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        self.sess = tf.Session(config=config)
+        self.sess.run([tf.global_variables_initializer(), tf.tables_initializer()])
+
+    def semantic_sim(self, sents1, sents2):
+        message_embeddings_ = self.embed([sents1, sents2])
+        message_embeddings_ = message_embeddings_.eval(session=self.sess)
+        print(type(message_embeddings_))
+        corr = np.inner(message_embeddings_, message_embeddings_)
+        
+        if corr[0][1] > 1:
+            return 1.000
+        return corr[0][1]
