@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+!/.gitignore
 *.py[cod]
 *$py.class
 
@@ -21,6 +22,7 @@ sdist/
 var/
 wheels/
 share/python-wheels/
+bin/
 *.egg-info/
 .installed.cfg
 *.egg
