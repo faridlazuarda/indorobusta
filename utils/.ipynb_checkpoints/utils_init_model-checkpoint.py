@@ -3,7 +3,7 @@ from transformers import BertForSequenceClassification, BertConfig, BertTokenize
 import torch
 from torch import optim
 import torch.nn.functional as F
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 tqdm.pandas()
 
 from .utils_metrics import document_sentiment_metrics_fn
