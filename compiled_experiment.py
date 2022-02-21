@@ -1,4 +1,8 @@
 import os, sys
+import gc
+
+gc.collect()
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 # insert at 1, 0 is the script path (or '' in REPL)
 sys.path.insert(1, 'tugas-akhir-repository/')
@@ -10,6 +14,7 @@ import torch
 from torch import optim
 import torch.nn.functional as F
 
+torch.cuda.empty_cache()
 
 import nltk
 from nltk.tokenize import word_tokenize
