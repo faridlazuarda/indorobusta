@@ -46,12 +46,12 @@ def load_dataset_loader(dataset_id, ds_type, tokenizer):
             dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=16, shuffle=True)  
         elif(ds_type == "valid"):
-            dataset_path = './dataset/emot-emotion-twitter/train_preprocess.csv'
-            dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
-            loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=16, shuffle=False)
-        elif(ds_type == "test"):
             dataset_path = './dataset/emot-emotion-twitter/valid_preprocess.csv'
             dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=16, shuffle=False)
+        elif(ds_type == "test"):
+            dataset_path = './dataset/emot-emotion-twitter/test_preprocess_masked_label.csv'
+            dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
+            loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=16, shuffle=False)
 
-    return dataset, loader
+    return dataset, loader, dataset_path

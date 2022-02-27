@@ -21,21 +21,61 @@ def metrics_to_string(metric_dict):
         string_list.append('{}:{:.2f}'.format(key, value))
     return ' '.join(string_list)
 
-def init_model(id_model):
+def logit_prob(text_ls, predictor, tokenizer):
+    original_text = text_ls
+    subwords = tokenizer.encode(text_ls)
+    subwords = torch.LongTensor(subwords).view(1, -1).to(predictor.device)
+
+    logits = predictor(subwords)[0]
+    orig_label = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+    
+    orig_probs = F.softmax(logits, dim=-1).squeeze()
+    orig_prob = F.softmax(logits, dim=-1).squeeze()[orig_label].detach().cpu().numpy()
+    
+    return orig_label, orig_probs, orig_prob
+
+    
+def load_word_index(downstream_task):
+    w2i, i2w = None, None
+    if downstream_task == 'sentiment':
+        w2i, i2w = DocumentSentimentDataset.LABEL2INDEX, DocumentSentimentDataset.INDEX2LABEL
+        return w2i, i2w
+    elif downstream_task == 'emotion':
+        w2i, i2w = EmotionDetectionDataset.LABEL2INDEX, EmotionDetectionDataset.INDEX2LABEL
+        return w2i, i2w
+    else:
+        return None
+
+def init_model(id_model, downstream_task):
     if id_model == "IndoBERT":
         tokenizer = BertTokenizer.from_pretrained('indobenchmark/indobert-base-p2')
         config = BertConfig.from_pretrained('indobenchmark/indobert-base-p2')
-        config.num_labels = DocumentSentimentDataset.NUM_LABELS
+        if downstream_task == "sentiment":
+            config.num_labels = DocumentSentimentDataset.NUM_LABELS
+        elif downstream_task == "emotion":
+            config.num_labels = EmotionDetectionDataset.NUM_LABELS
+        else:
+            return "Task does not match"
         model = BertForSequenceClassification.from_pretrained('indobenchmark/indobert-base-p2', config=config)
     elif id_model == "XLM-R":
         tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-base')
         config = XLMRobertaConfig.from_pretrained("xlm-roberta-base")
-        config.num_labels = DocumentSentimentDataset.NUM_LABELS
+        if downstream_task == "sentiment":
+            config.num_labels = DocumentSentimentDataset.NUM_LABELS
+        elif downstream_task == "emotion":
+            config.num_labels = EmotionDetectionDataset.NUM_LABELS
+        else:
+            return "Task does not match"
         model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-base', config=config)
     elif id_model == "mBERT":
         tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-uncased')
         config = BertConfig.from_pretrained("bert-base-multilingual-uncased")
-        config.num_labels = DocumentSentimentDataset.NUM_LABELS
+        if downstream_task == "sentiment":
+            config.num_labels = DocumentSentimentDataset.NUM_LABELS
+        elif downstream_task == "emotion":
+            config.num_labels = EmotionDetectionDataset.NUM_LABELS
+        else:
+            return "Task does not match"
         model = BertForSequenceClassification.from_pretrained('bert-base-multilingual-uncased', config=config)
 
     return tokenizer, config, model
@@ -47,7 +87,8 @@ def text_logit(text, model, tokenizer, i2w):
     logits = model(subwords)[0]
     label = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
 
-    print(f'Text: {text} | Label : {i2w[label]} ({F.softmax(logits, dim=-1).squeeze()[label] * 100:.3f}%)')
+    # print(f'Text: {text} | Label : {i2w[label]} ({F.softmax(logits, dim=-1).squeeze()[label] * 100:.3f}%)')
+    return i2w[label], F.softmax(logits, dim=-1).squeeze()[label] * 100
 
 def fine_tuning_model(base_model, i2w, train_loader, valid_loader, epochs=5):
     optimizer = optim.Adam(base_model.parameters(), lr=3e-6)

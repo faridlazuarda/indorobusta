@@ -10,3 +10,5 @@ from .utils_semantic_use import USE
 from .utils_init_model import text_logit as text_logit
 from .utils_init_model import fine_tuning_model as fine_tuning_model
 from .utils_init_model import eval_model as eval_model
+from .utils_init_model import logit_prob as logit_prob
+from .utils_init_model import load_word_index as load_word_index

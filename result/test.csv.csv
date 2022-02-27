@@ -1,0 +1,3 @@
+text,sentiment,perturbed_text,perturbed_semantic_sim,orig_label,orig_prob,perturbed_label,perturbed_prob,running_time(s),before_attack_acc,after_attack_acc
+"meski masa kampanye sudah selesai , bukan berati habis pula upaya mengerek tingkat kedipilihan elektabilitas .",1,"meski masa kampanye sudah selesai , bukan berati habis pula upaya mengerek tingkat kedipilihan elektabilitas .",1.0,1,0.8362002,1,1,7.06,1.0,1.0
+tidak enak,2,tidak enak,1.0,2,0.99788755,2,2,5.74,,
