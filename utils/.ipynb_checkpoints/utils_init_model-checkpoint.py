@@ -10,6 +10,7 @@ from .utils_metrics import document_sentiment_metrics_fn
 from .utils_forward_fn import forward_sequence_classification
 from .utils_data_utils import DocumentSentimentDataset, DocumentSentimentDataLoader, EmotionDetectionDataset, EmotionDetectionDataLoader
 
+device = 'cuda:1' if torch.cuda.is_available() else 'cuda:7'
 
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:

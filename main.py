@@ -16,6 +16,7 @@ from utils.utils_semantic_use import USE
 from utils.utils_data_utils import DocumentSentimentDataset, DocumentSentimentDataLoader, EmotionDetectionDataset, EmotionDetectionDataLoader
 from utils.utils_metrics import document_sentiment_metrics_fn
 from utils.utils_init_model import text_logit, fine_tuning_model, eval_model, init_model, logit_prob, load_word_index
+from utils.get_args import get_args
 
 from attack.adv_attack import attack
 import os, sys
@@ -25,11 +26,12 @@ def main(
     model_target,
     downstream_task,
     attack_strategy,
-    perturbation_technique,
-    perturb_ratio,
     finetune_epoch,
     num_sample,
-    result_file,
+    exp_name,
+    perturbation_technique,
+    perturb_ratio,
+    perturb_lang="id",
     seed=26092020
 ):
     set_seed(seed)
@@ -57,7 +59,7 @@ def main(
                 finetuned_model,
                 tokenizer, 0.2,
                 "codemixing",
-                "en",
+                perturb_lang,
                 use), axis=1, result_type='expand'
         )
     elif downstream_task == 'emotion':
@@ -70,7 +72,7 @@ def main(
                 finetuned_model,
                 tokenizer, 0.2,
                 "codemixing",
-                "en",
+                perturb_lang,
                 use), axis=1, result_type='expand'
         )
 
@@ -79,67 +81,21 @@ def main(
 
     exp_dataset.loc[exp_dataset.index[0], 'before_attack_acc'] = before_attack
     exp_dataset.loc[exp_dataset.index[0], 'after_attack_acc'] = after_attack
-    exp_dataset.to_csv(os.getcwd() + r'/result/'+result_file+".csv", index=False)   
-    
+    exp_dataset.to_csv(os.getcwd() + r'/result/'+exp_name+".csv", index=False)   
     
 
+
 if __name__ == "__main__":
-    main(
-        model_target="IndoBERT", # IndoBERT, XLM-R, mBERT
-        downstream_task="emotion", # sentiment, emotion
-        attack_strategy="synonym_replacement", # codemixing, synonym replacement
-        perturbation_technique="adversarial", # adversarial, random
-        perturb_ratio=0.2, # 0.2, 0.4, 0.6, 0.8
-        finetune_epoch=5,
-        num_sample=5,
-        result_file="test-indobert-emotion-synonym_replacement-adversarial-0.2",
-        seed=26092020
-    )
+    args = get_args()
     
     main(
-        model_target="IndoBERT", # IndoBERT, XLM-R, mBERT
-        downstream_task="sentiment", # sentiment, emotion
-        attack_strategy="codemixing", # codemixing, synonym replacement
-        perturbation_technique="adversarial", # adversarial, random
-        perturb_ratio=0.2, # 0.2, 0.4, 0.6, 0.8
-        finetune_epoch=5,
-        num_sample=5,
-        result_file="test-indobert-sentiment-codemixing-adversarial-0.2",
-        seed=26092020
-    )
-    
-    main(
-        model_target="IndoBERT", # IndoBERT, XLM-R, mBERT
-        downstream_task="emotion", # sentiment, emotion
-        attack_strategy="codemixing", # codemixing, synonym replacement
-        perturbation_technique="adversarial", # adversarial, random
-        perturb_ratio=0.2, # 0.2, 0.4, 0.6, 0.8
-        finetune_epoch=5,
-        num_sample=5,
-        result_file="test-indobert-emotion-codemixing-adversarial-0.2",
-        seed=26092020
-    )
-    
-    main(
-        model_target="IndoBERT", # IndoBERT, XLM-R, mBERT
-        downstream_task="sentiment", # sentiment, emotion
-        attack_strategy="synonym_replacement", # codemixing, synonym replacement
-        perturbation_technique="adversarial", # adversarial, random
-        perturb_ratio=0.2, # 0.2, 0.4, 0.6, 0.8
-        finetune_epoch=5,
-        num_sample=5,
-        result_file="test-indobert-sentiment-synonym_replacement-adversarial-0.2",
-        seed=26092020
-    )
-    
-    main(
-        model_target="IndoBERT", # IndoBERT, XLM-R, mBERT
-        downstream_task="emotion", # sentiment, emotion
-        attack_strategy="synonym_replacement", # codemixing, synonym replacement
-        perturbation_technique="adversarial", # adversarial, random
-        perturb_ratio=0.2, # 0.2, 0.4, 0.6, 0.8
-        finetune_epoch=5,
-        num_sample=5,
-        result_file="test-indobert-emotion-synonym_replacement-adversarial-0.2",
-        seed=26092020
+        args.model_target,
+        args.downstream_task,
+        args.attack_strategy,
+        args.finetune_epoch,
+        args.num_sample,
+        args.exp_name,
+        args.perturbation_technique,
+        args.perturb_ratio,
+        args.perturb_lang,
     )

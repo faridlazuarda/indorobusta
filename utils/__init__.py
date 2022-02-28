@@ -12,3 +12,5 @@ from .utils_init_model import fine_tuning_model as fine_tuning_model
 from .utils_init_model import eval_model as eval_model
 from .utils_init_model import logit_prob as logit_prob
 from .utils_init_model import load_word_index as load_word_index
+
+from .get_args import get_args as get_args

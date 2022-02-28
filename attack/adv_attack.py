@@ -87,6 +87,9 @@ def attack(text_ls,
         
         num_perturbation = math.floor(len(words_perturb)*att_ratio)
         
+        if num_perturbation < 1:
+            num_perturbation = 1
+        
 #       top words perturb berisi list kata terpenting yang tidak akan diswitch ketika first_codemix_sim_score < sim_score_threshold
         top_words_perturb = words_perturb[:num_perturbation]
         
