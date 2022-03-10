@@ -1,11 +1,14 @@
 import torch
-
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "3,4"
 ###
 # Forward Function
 ###
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 # Forward function for sequence classification
-def forward_sequence_classification(model, batch_data, i2w, is_test=False, device='cpu', **kwargs):
+def forward_sequence_classification(model, batch_data, i2w, is_test=False, device=device, **kwargs):
     # Unpack batch data
     if len(batch_data) == 3:
         (subword_batch, mask_batch, label_batch) = batch_data
@@ -19,7 +22,7 @@ def forward_sequence_classification(model, batch_data, i2w, is_test=False, devic
     token_type_batch = torch.LongTensor(token_type_batch) if token_type_batch is not None else None
     label_batch = torch.LongTensor(label_batch)
             
-    if device == "cuda":
+    if "cuda" in device:
         subword_batch = subword_batch.cuda()
         mask_batch = mask_batch.cuda()
         token_type_batch = token_type_batch.cuda() if token_type_batch is not None else None

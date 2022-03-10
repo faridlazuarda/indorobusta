@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow
 import tensorflow.compat.v1 as tf
-import jax.numpy as jnp
+# import jax.numpy as jnp
 tf.disable_v2_behavior()
 tf.disable_eager_execution()
 import tensorflow_hub as hub
@@ -23,7 +23,7 @@ class USE(object):
     def semantic_sim(self, sents1, sents2):
         message_embeddings_ = self.embed([sents1, sents2])
         message_embeddings_ = message_embeddings_.eval(session=self.sess)
-        corr = jnp.inner(message_embeddings_, message_embeddings_).block_until_ready()
+        corr = np.inner(message_embeddings_, message_embeddings_)
         
         if corr[0][1] > 1:
             return 1.000

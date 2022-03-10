@@ -9,11 +9,11 @@ import numpy as np
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('omw')
+
 stop_words_set = []
 for w in stopwords.words('indonesian'):
     stop_words_set.append(w)
 
-    
 
 
 def get_synonyms(word):
@@ -120,3 +120,20 @@ def swap_minimum_importance_words(words_perturb, top_importance_words):
                 res.append(temp_sm.tolist())
                 
     return res
+
+def trans_dict(wordlist, perturbation_technique, lang=None):
+    translated_wordlist = {}
+    # ic(wordlist)
+    if perturbation_technique == "codemixing":
+        translator = GoogleTranslator(source="id", target=lang)
+        
+        for word in wordlist:
+            if word.isalpha():
+                translated_wordlist[word] = translator.translate(word)
+            else:
+                translated_wordlist[word] = word
+    else:
+        for word in wordlist:
+            translated_wordlist[word] = get_synonyms(word)[0]
+            
+    return translated_wordlist

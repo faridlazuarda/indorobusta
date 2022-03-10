@@ -1,3 +1,10 @@
+import torch
+import os
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"  
+# device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
+# torch.cuda.set_device(device)
+
 from transformers import BertForSequenceClassification, BertConfig, BertTokenizer, AutoTokenizer, XLMRobertaTokenizer, XLMRobertaConfig, XLMRobertaForSequenceClassification, AutoModelForSequenceClassification
 
 import torch
@@ -10,7 +17,8 @@ from .utils_metrics import document_sentiment_metrics_fn
 from .utils_forward_fn import forward_sequence_classification
 from .utils_data_utils import DocumentSentimentDataset, DocumentSentimentDataLoader, EmotionDetectionDataset, EmotionDetectionDataLoader
 
-device = 'cuda:1' if torch.cuda.is_available() else 'cuda:7'
+
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
@@ -24,6 +32,7 @@ def metrics_to_string(metric_dict):
 
 def logit_prob(text_ls, predictor, tokenizer):
     original_text = text_ls
+    # print(text_ls)
     subwords = tokenizer.encode(text_ls)
     subwords = torch.LongTensor(subwords).view(1, -1).to(predictor.device)
 
@@ -107,7 +116,7 @@ def fine_tuning_model(base_model, i2w, train_loader, valid_loader, epochs=5):
         train_pbar = tqdm(train_loader, leave=True, total=len(train_loader))
         for i, batch_data in enumerate(train_pbar):
             # Forward base_model
-            loss, batch_hyp, batch_label = forward_sequence_classification(base_model, batch_data[:-1], i2w=i2w, device='cuda')
+            loss, batch_hyp, batch_label = forward_sequence_classification(base_model, batch_data[:-1], i2w=i2w, device=device)
 
             # Update base_model
             optimizer.zero_grad()
@@ -139,7 +148,7 @@ def fine_tuning_model(base_model, i2w, train_loader, valid_loader, epochs=5):
         pbar = tqdm(valid_loader, leave=True, total=len(valid_loader))
         for i, batch_data in enumerate(pbar):
             batch_seq = batch_data[-1]        
-            loss, batch_hyp, batch_label = forward_sequence_classification(base_model, batch_data[:-1], i2w=i2w, device='cuda')
+            loss, batch_hyp, batch_label = forward_sequence_classification(base_model, batch_data[:-1], i2w=i2w, device=device)
 
             # Calculate total loss
             valid_loss = loss.item()
@@ -167,7 +176,7 @@ def eval_model(model, test_loader, i2w):
 
     pbar = tqdm(test_loader, leave=True, total=len(test_loader))
     for i, batch_data in enumerate(pbar):
-        _, batch_hyp, _ = forward_sequence_classification(model, batch_data[:-1], i2w=i2w, device='cuda')
+        _, batch_hyp, _ = forward_sequence_classification(model, batch_data[:-1], i2w=i2w, device=device)
         list_hyp += batch_hyp
 
     # Save prediction
