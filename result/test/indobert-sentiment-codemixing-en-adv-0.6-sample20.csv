@@ -1,0 +1,3 @@
+text,sentiment,perturbed_text,perturbed_semantic_sim,pred_label,pred_proba,perturbed_label,perturbed_proba,translated_word(s),running_time(s),before_attack_acc,after_attack_acc,avg_running_time(s)
+"meski masa kampanye sudah selesai , bukan berati habis pula upaya mengerek tingkat kedipilihan elektabilitas .",1,meski masa campaign sudah finished bukan berati habis pula effort mengerek level choice elektabilitas,0.6357331,1,[0.0617 0.5557 0.3826],2,[0.1708 0.3348 0.4944],"{'tingkat': 'level', 'kampanye': 'campaign', 'selesai': 'finished', 'kedipilihan': 'choice', 'upaya': 'effort'}",6.26,1.0,0.5,5.324999999999999
+tidak enak,2,tidak nice,0.54095876,2,[0.0133 0.0083 0.9784],2,[0.0247 0.0091 0.9663],{'enak': 'nice'},4.39,,,

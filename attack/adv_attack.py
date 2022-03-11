@@ -43,6 +43,7 @@ def attack(text_ls,
     if true_label != orig_label:
         running_time = round(time.time() - start_time, 2)
         # perturbed_text, perturbed_semantic_sim, orig_label, orig_probs, perturbed_label, perturbed_probs, translated_words, running_time
+        orig_probs = np.round(orig_probs.detach().cpu().numpy().tolist(),4)
         return original_text, 1.000, orig_label, orig_probs, orig_label, orig_probs,'', running_time
     else:
         text_ls = word_tokenize(text_ls)
@@ -123,7 +124,7 @@ def attack(text_ls,
                 # ic(wpc[-1][-1])
                 candidate_comparison[perturbed_candidate] = (perturbed_candidate_sim_score, wpc[-1][-1], wpc)
 
-            ic(candidate_comparison)
+            # ic(candidate_comparison)
             sorted_candidate_comparison = sorted(candidate_comparison.keys(), key=lambda x: (candidate_comparison[x][0], candidate_comparison[x][1]), reverse=True)
 
             perturbed_text = sorted_candidate_comparison[0]

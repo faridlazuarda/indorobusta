@@ -9,6 +9,7 @@ import numpy as np
 nltk.download('stopwords')
 nltk.download('punkt')
 nltk.download('omw')
+nltk.download('stopwords')
 
 stop_words_set = []
 for w in stopwords.words('indonesian'):
