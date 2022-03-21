@@ -3,7 +3,7 @@ import gc
 
 gc.collect()
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-os.environ["CUDA_VISIBLE_DEVICES"] = "7"  
+# os.environ["CUDA_VISIBLE_DEVICES"] = "7"  
 
 # import torch
 # torch.cuda.set_device(device)

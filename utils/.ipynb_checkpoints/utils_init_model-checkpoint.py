@@ -18,7 +18,7 @@ from .utils_forward_fn import forward_sequence_classification
 from .utils_data_utils import DocumentSentimentDataset, DocumentSentimentDataLoader, EmotionDetectionDataset, EmotionDetectionDataLoader
 
 
-device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+device = 'cuda:0,1' if torch.cuda.is_available() else 'cpu'
 
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
