@@ -6,16 +6,17 @@ import copy
 from deep_translator import GoogleTranslator
 import numpy as np
 
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('omw')
-nltk.download('stopwords')
+# nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('omw')
+# nltk.download('stopwords')
 
 stop_words_set = []
 for w in stopwords.words('indonesian'):
     stop_words_set.append(w)
 
-
+from icecream import ic
+    
 
 def get_synonyms(word):
     if word in stop_words_set:
@@ -69,7 +70,7 @@ def codemix_perturbation(words, target_lang, words_perturb):
     
     translator = GoogleTranslator(source="id", target=target_lang)
     
-    supported_langs = ["su", "jw", "ms", "en"]
+    supported_langs = ["su", "jw", "ms", "en", "fr", "it"]
     
     if target_lang not in supported_langs:
         raise ValueError('Language Unavailable')
@@ -103,9 +104,13 @@ def swap_minimum_importance_words(words_perturb, top_importance_words):
             if wt[2] == min(top_importance_words, key = lambda t: t[2])[2]:
                 arr.append(wt)
         return arr
+    
+    # get list of words with minimum importance score
     minimum_import = get_minimums(top_importance_words)
     unlisted = list(set(words_perturb).symmetric_difference(set(top_importance_words)))
-
+    
+    ic(unlisted)
+    
     len_wp = len(top_importance_words)
     len_ul = len(unlisted)
     
@@ -113,12 +118,17 @@ def swap_minimum_importance_words(words_perturb, top_importance_words):
     for i in range(len_wp):
         if top_importance_words[i] in minimum_import:
             temp_wp = list(copy.deepcopy(top_importance_words))
-            temp_wp.pop(i)
+            if len(temp_wp) == 0:
+                break
+            
             swapped_wp = np.array([(temp_wp) for i in range(len_ul)])
+            
+            ic(swapped_wp)
             for j in range(len(swapped_wp)):
                 temp_sm = np.vstack((swapped_wp[j], tuple(unlisted[j])))
                 
                 res.append(temp_sm.tolist())
+            temp_wp.pop(i)
                 
     return res
 

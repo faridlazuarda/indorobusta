@@ -9,7 +9,7 @@ from .attack_helper import get_synonyms, codemix_perturbation, synonym_replaceme
 
 import nltk
 from nltk.corpus import stopwords
-nltk.download('stopwords')
+# nltk.download('stopwords')
 stop_words_set = []
 for w in stopwords.words('indonesian'):
     stop_words_set.append(w)
@@ -125,7 +125,8 @@ def attack(text_ls,
                 candidate_comparison[perturbed_candidate] = (perturbed_candidate_sim_score, wpc[-1][-1], wpc)
 
             # ic(candidate_comparison)
-            sorted_candidate_comparison = sorted(candidate_comparison.keys(), key=lambda x: (candidate_comparison[x][0], candidate_comparison[x][1]), reverse=True)
+            
+            sorted_candidate_comparison = sorted(candidate_comparison.keys(), key=lambda x: (float(candidate_comparison[x][0]), float(candidate_comparison[x][1])), reverse=True)
 
             perturbed_text = sorted_candidate_comparison[0]
             

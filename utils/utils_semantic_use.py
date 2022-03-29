@@ -23,7 +23,7 @@ class USE(object):
     def semantic_sim(self, sents1, sents2):
         message_embeddings_ = self.embed([sents1, sents2])
         message_embeddings_ = message_embeddings_.eval(session=self.sess)
-        corr = np.inner(message_embeddings_, message_embeddings_)
+        corr = np.tensordot(message_embeddings_, message_embeddings_, axes=(-1,-1))
         
         if corr[0][1] > 1:
             return 1.000

@@ -10,6 +10,8 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 from sklearn.metrics import accuracy_score
 import swifter
+import torch
+device = torch.device("cuda")
 
 from tqdm.notebook import tqdm
 tqdm.pandas()
@@ -34,22 +36,29 @@ def main(
     exp_name,
     perturbation_technique,
     perturb_ratio,
+    dataset,
     perturb_lang="id",
     seed=26092020
 ):
+    print(exp_name)
+    print(seed)
     set_seed(seed)
     use = USE()
 
-    tokenizer, config, model = init_model(model_target, downstream_task)
+    tokenizer, config, finetuned_model = init_model(model_target, downstream_task, seed)
     w2i, i2w = load_word_index(downstream_task)
     
     train_dataset, train_loader, train_path = load_dataset_loader(downstream_task, 'train', tokenizer)
     valid_dataset, valid_loader, valid_path = load_dataset_loader(downstream_task, 'valid', tokenizer)
     test_dataset, test_loader, test_path = load_dataset_loader(downstream_task, 'test', tokenizer)
-
-    finetuned_model = fine_tuning_model(model, i2w, train_loader, valid_loader, finetune_epoch)
     
-    exp_dataset = valid_dataset.load_dataset(valid_path).head(num_sample)
+    finetuned_model.to(device)
+    # finetuned_model = fine_tuning_model(model, i2w, train_loader, valid_loader, finetune_epoch)
+    
+    if dataset == "valid":
+        exp_dataset = valid_dataset.load_dataset(valid_path)
+    elif dataset == "train":
+        exp_dataset = train_dataset.load_dataset(train_path)
     # exp_dataset = dd.from_pandas(exp_dataset, npartitions=10)
     text,label = None,None
 
@@ -90,19 +99,12 @@ def main(
     exp_dataset.loc[exp_dataset.index[0], 'after_attack_acc'] = after_attack
     exp_dataset.loc[exp_dataset.index[0], 'avg_semantic_sim'] = exp_dataset["perturbed_semantic_sim"].mean()
     exp_dataset.loc[exp_dataset.index[0], 'avg_running_time(s)'] = exp_dataset["running_time(s)"].mean()
-    exp_dataset.to_csv(os.getcwd() + r'/result/'+exp_name+".csv", index=False)
+    exp_dataset.to_csv(os.getcwd() + r'/result/seed'+str(seed)+"/"+str(dataset)+"/"+str(exp_name)+".csv", index=False)
     
 
 
 if __name__ == "__main__":
     args = get_args()
-    
-#     if args.downstream_task == "sentiment":
-#         os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-#     else:
-#         os.environ["CUDA_VISIBLE_DEVICES"] = "7"
-    
-#     print(os.environ["CUDA_VISIBLE_DEVICES"])
     
     main(
         args.model_target,
@@ -113,5 +115,7 @@ if __name__ == "__main__":
         args.exp_name,
         args.perturbation_technique,
         args.perturb_ratio,
+        args.dataset,
         args.perturb_lang,
+        args.seed
     )

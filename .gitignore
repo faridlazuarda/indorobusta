@@ -3,6 +3,7 @@ __pycache__/
 !/.gitignore
 *.py[cod]
 *$py.class
+models/
 
 # C extensions
 *.so
