@@ -8,6 +8,7 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 # import torch
 # torch.cuda.set_device(device)
 
+import dask.dataframe as dd
 from sklearn.metrics import accuracy_score
 import swifter
 import torch
@@ -59,14 +60,16 @@ def main(
         exp_dataset = valid_dataset.load_dataset(valid_path).head(20)
     elif dataset == "train":
         exp_dataset = train_dataset.load_dataset(train_path)
+        
     # exp_dataset = dd.from_pandas(exp_dataset, npartitions=10)
+    
     text,label = None,None
 
     # print(perturbation_technique)
     if downstream_task == 'sentiment':
         text = 'text'
         label = 'sentiment'
-        exp_dataset[['perturbed_text', 'perturbed_semantic_sim', 'pred_label', 'pred_proba', 'perturbed_label', 'perturbed_proba', 'translated_word(s)', 'running_time(s)']] = exp_dataset.progress_apply(
+        exp_dataset[['perturbed_text', 'perturbed_semantic_sim', 'pred_label', 'pred_proba', 'perturbed_label', 'perturbed_proba', 'translated_word(s)', 'running_time(s)']] = exp_dataset.swifter.apply(
             lambda row: attack(
                 text_ls = row.text,
                 true_label = row.sentiment,
@@ -80,7 +83,7 @@ def main(
     elif downstream_task == 'emotion':
         text = 'tweet'
         label = 'label'
-        exp_dataset[['perturbed_text', 'perturbed_semantic_sim', 'pred_label', 'pred_proba', 'perturbed_label', 'perturbed_proba', 'translated_word(s)', 'running_time(s)']] = exp_dataset.progress_apply(
+        exp_dataset[['perturbed_text', 'perturbed_semantic_sim', 'pred_label', 'pred_proba', 'perturbed_label', 'perturbed_proba', 'translated_word(s)', 'running_time(s)']] = exp_dataset.swifter.apply(
             lambda row: attack(
                 text_ls = row.tweet,
                 true_label = row.label,
