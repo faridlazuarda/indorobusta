@@ -21,6 +21,14 @@ class USE(object):
         self.sess.run([tf.global_variables_initializer(), tf.tables_initializer()])
 
     def semantic_sim(self, sents1, sents2):
+        # with tf.Session() as session:
+        #     session.run([tf.global_variables_initializer(), tf.tables_initializer()])
+        #     with tf.device('GPU'):
+        #         message_embeddings_ = session.run(self.embed([sents1, sents2]))
+        
+        if sents1.lower() == sents2.lower():
+            return 1.000
+        
         message_embeddings_ = self.embed([sents1, sents2])
         message_embeddings_ = message_embeddings_.eval(session=self.sess)
         corr = np.tensordot(message_embeddings_, message_embeddings_, axes=(-1,-1))

@@ -18,7 +18,7 @@ from .utils_forward_fn import forward_sequence_classification
 from .utils_data_utils import DocumentSentimentDataset, DocumentSentimentDataLoader, EmotionDetectionDataset, EmotionDetectionDataLoader
 
 
-device = 'cuda:0,1' if torch.cuda.is_available() else 'cpu'
+device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
@@ -58,7 +58,7 @@ def load_word_index(downstream_task):
 
 def init_model(id_model, downstream_task, seed):
     if id_model == "IndoBERT":
-        tokenizer = BertTokenizer.from_pretrained('indobenchmark/indobert-base-p2')
+        tokenizer = BertTokenizer.from_pretrained('indobenchmark/indobert-base-p2', local_files_only=True)
         config = BertConfig.from_pretrained('indobenchmark/indobert-base-p2')
         if downstream_task == "sentiment":
             config.num_labels = DocumentSentimentDataset.NUM_LABELS
@@ -71,7 +71,7 @@ def init_model(id_model, downstream_task, seed):
         model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
         
     elif id_model == "XLM-R":
-        tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-base')
+        tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-base', local_files_only=True)
         config = XLMRobertaConfig.from_pretrained("xlm-roberta-base")
         if downstream_task == "sentiment":
             config.num_labels = DocumentSentimentDataset.NUM_LABELS
@@ -84,7 +84,7 @@ def init_model(id_model, downstream_task, seed):
         model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
         
     elif id_model == "mBERT":
-        tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-uncased')
+        tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-uncased', local_files_only=True)
         config = BertConfig.from_pretrained("bert-base-multilingual-uncased")
         if downstream_task == "sentiment":
             config.num_labels = DocumentSentimentDataset.NUM_LABELS
@@ -97,7 +97,7 @@ def init_model(id_model, downstream_task, seed):
         model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
         
     elif id_model == "IndoBERT-Large":
-        tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-large-p2")
+        tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-large-p2", local_files_only=True)
         config = BertConfig.from_pretrained("indobenchmark/indobert-large-p2")
         if downstream_task == "sentiment":
             config.num_labels = DocumentSentimentDataset.NUM_LABELS
