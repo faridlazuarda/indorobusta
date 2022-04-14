@@ -2,8 +2,9 @@ import os, sys
 import gc
 
 gc.collect()
+# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1,7"
 
 # import torch
 # torch.cuda.set_device(device)
@@ -102,22 +103,22 @@ if __name__ == "__main__":
     now_seed_2 = 24032022
     now_seed_3 = 42
     
-    # main(
-    #     model_target="IndoBERT-Large",
-    #     downstream_task="sentiment",
-    #     attack_strategy="adversarial",
-    #     finetune_epoch=5,
-    #     num_sample=5,
-    #     exp_name="coba",
-    #     perturbation_technique="codemixing",
-    #     perturb_ratio=0.7,
-    #     dataset="valid",
-    #     perturb_lang="en",
-    #     seed=now_seed
-    # )
+    main(
+        model_target="XLM-R-Large",
+        downstream_task="sentiment",
+        attack_strategy="adversarial",
+        finetune_epoch=5,
+        num_sample=5,
+        exp_name="coba",
+        perturbation_technique="codemixing",
+        perturb_ratio=0.7,
+        dataset="valid",
+        perturb_lang="en",
+        seed=now_seed
+    )
     
     main(
-        model_target="IndoBERT-Large",
+        model_target="XLM-R-Large",
         downstream_task="emotion",
         attack_strategy="adversarial",
         finetune_epoch=10,
@@ -131,7 +132,7 @@ if __name__ == "__main__":
     )
     
     main(
-        model_target="IndoBERT-Large",
+        model_target="XLM-R-Large",
         downstream_task="sentiment",
         attack_strategy="adversarial",
         finetune_epoch=5,
@@ -145,7 +146,7 @@ if __name__ == "__main__":
     )
     
     main(
-        model_target="IndoBERT-Large",
+        model_target="XLM-R-Large",
         downstream_task="emotion",
         attack_strategy="adversarial",
         finetune_epoch=10,
@@ -159,7 +160,7 @@ if __name__ == "__main__":
     )
     
     main(
-        model_target="IndoBERT-Large",
+        model_target="XLM-R-Large",
         downstream_task="sentiment",
         attack_strategy="adversarial",
         finetune_epoch=5,
@@ -173,7 +174,7 @@ if __name__ == "__main__":
     )
     
     main(
-        model_target="IndoBERT-Large",
+        model_target="XLM-R-Large",
         downstream_task="emotion",
         attack_strategy="adversarial",
         finetune_epoch=10,
@@ -185,177 +186,3 @@ if __name__ == "__main__":
         perturb_lang="en",
         seed=now_seed_3
     )
-    
-    
-    # main(
-    #     model_target="IndoBERT",
-    #     downstream_task="sentiment",
-    #     attack_strategy="adversarial",
-    #     finetune_epoch=5,
-    #     num_sample=5,
-    #     exp_name="coba",
-    #     perturbation_technique="codemixing",
-    #     perturb_ratio=0.7,
-    #     dataset="valid",
-    #     perturb_lang="en",
-    #     seed=now_seed
-    # )
-    
-#     main(
-#         model_target="XLM-R",
-#         downstream_task="sentiment",
-#         attack_strategy="adversarial",
-#         finetune_epoch=5,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed
-#     )
-    
-#     main(
-#         model_target="mBERT",
-#         downstream_task="sentiment",
-#         attack_strategy="adversarial",
-#         finetune_epoch=5,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed
-#     )
-    
-#     main(
-#         model_target="IndoBERT",
-#         downstream_task="emotion",
-#         attack_strategy="adversarial",
-#         finetune_epoch=10,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed
-#     )
-    
-#     main(
-#         model_target="XLM-R",
-#         downstream_task="emotion",
-#         attack_strategy="adversarial",
-#         finetune_epoch=10,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed
-#     )
-    
-#     main(
-#         model_target="mBERT",
-#         downstream_task="emotion",
-#         attack_strategy="adversarial",
-#         finetune_epoch=10,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed
-#     )
-    
-    
-    
-    
-    
-    
-#     main(
-#         model_target="IndoBERT",
-#         downstream_task="sentiment",
-#         attack_strategy="adversarial",
-#         finetune_epoch=5,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed_2
-#     )
-    
-#     main(
-#         model_target="XLM-R",
-#         downstream_task="sentiment",
-#         attack_strategy="adversarial",
-#         finetune_epoch=5,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed_2
-#     )
-    
-#     main(
-#         model_target="mBERT",
-#         downstream_task="sentiment",
-#         attack_strategy="adversarial",
-#         finetune_epoch=5,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed_2
-#     )
-    
-#     main(
-#         model_target="IndoBERT",
-#         downstream_task="emotion",
-#         attack_strategy="adversarial",
-#         finetune_epoch=10,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed_2
-#     )
-    
-#     main(
-#         model_target="XLM-R",
-#         downstream_task="emotion",
-#         attack_strategy="adversarial",
-#         finetune_epoch=10,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed_2
-#     )
-    
-#     main(
-#         model_target="mBERT",
-#         downstream_task="emotion",
-#         attack_strategy="adversarial",
-#         finetune_epoch=10,
-#         num_sample=5,
-#         exp_name="coba",
-#         perturbation_technique="codemixing",
-#         perturb_ratio=0.7,
-#         dataset="valid",
-#         perturb_lang="en",
-#         seed=now_seed_2
-#     )

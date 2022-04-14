@@ -24,7 +24,7 @@ def attack(text_ls,
            perturbation_technique,
            lang_codemix=None,
            sim_predictor=None,
-           sim_score_threshold=0.5,
+           sim_score_threshold=0,
            sim_score_window=15,
            batch_size=32, 
            import_score_threshold=-1.):
@@ -38,7 +38,10 @@ def attack(text_ls,
     
     original_text = text_ls
     orig_label, orig_probs, orig_prob = logit_prob(text_ls, predictor, tokenizer)
-        
+    
+    if len(original_text.split()) < sim_score_window:
+        sim_score_threshold = 0.1  
+    
 #     SEK SALAAHHHHHH
     if true_label != orig_label:
         running_time = round(time.time() - start_time, 2)
@@ -46,9 +49,10 @@ def attack(text_ls,
         orig_probs = np.round(orig_probs.detach().cpu().numpy().tolist(),4)
         return original_text, 1.000, orig_label, orig_probs, orig_label, orig_probs,'', running_time
     else:
-        text_ls = word_tokenize(text_ls)
+        text_ls = original_text.split()
         text_ls = [word for word in text_ls if word.isalnum()]
         len_text = len(text_ls)
+        # # ic(len_text)
         half_sim_score_window = (sim_score_window - 1) // 2
         # num_queries = 1
         
@@ -57,16 +61,19 @@ def attack(text_ls,
         leave_1_probs = []
         leave_1_probs_argmax = []
         # num_queries += len(leave_1_texts)
+        
+# torch.inference mode
         for text_leave_1 in leave_1_texts:
-            subwords_leave_1 = tokenizer.encode(text_leave_1)
-            subwords_leave_1 = torch.LongTensor(subwords_leave_1).view(1, -1).to(predictor.device)
-            logits_leave_1 = predictor(subwords_leave_1)[0]
-            orig_label_leave_1 = torch.topk(logits_leave_1, k=1, dim=-1)[1].squeeze().item()
-            
+            orig_label_leave_1, orig_probs_leave_1, orig_prob_leave_1 = logit_prob(text_leave_1, predictor, tokenizer)
+            leave_1_probs.append(orig_probs_leave_1.detach().cpu().numpy())
             leave_1_probs_argmax.append(orig_label_leave_1)
-            leave_1_probs.append(F.softmax(logits_leave_1, dim=-1).squeeze().detach().cpu().numpy())
-            
+        
+        # # running_time_a = round(time.time() - start_time, 2)
+        # # ic(running_time_a)
+        
+        # # start_time_conv = time.time()
         leave_1_probs = torch.tensor(leave_1_probs).to("cuda:0")
+        # # end_time_conv = round(time.time() - start_time, 2)
         
         orig_prob_extended=np.empty(len_text)
         orig_prob_extended.fill(orig_prob)
@@ -97,12 +104,18 @@ def attack(text_ls,
         trans_word = [twp[1] for twp in top_words_perturb]
 
         if perturbation_technique == "codemixing":
-            perturbed_text = codemix_perturbation(text_ls, lang_codemix, top_words_perturb)
+            perturbed_text,translated_words = codemix_perturbation(text_ls, lang_codemix, top_words_perturb)
         elif perturbation_technique == "synonym_replacement":
-            perturbed_text = synonym_replacement(text_ls, top_words_perturb)
+            perturbed_text,translated_words = synonym_replacement(text_ls, top_words_perturb)
         
+        # start_time_use = time.time()
         first_perturbation_sim_score = sim_predictor.semantic_sim(original_text, perturbed_text)
-
+        # end_time_use = round(time.time() - start_time, 2)
+        
+        # ic(end_time_use)
+        
+        # ic(first_perturbation_sim_score)
+        
         words_perturb_candidates = []
         if first_perturbation_sim_score < sim_score_threshold:
             words_perturb_candidates.append(top_words_perturb)
@@ -114,18 +127,17 @@ def attack(text_ls,
 
             candidate_comparison = {}
             for wpc in words_perturb_candidates:
-                # ic(wpc)
+                
                 if perturbation_technique == "codemixing":
-                    perturbed_candidate = codemix_perturbation(text_ls, lang_codemix, wpc)
+#                     bisa dicache, gaperlu request satu2
+                    perturbed_candidate,translated_words = codemix_perturbation(text_ls, lang_codemix, wpc)
                 elif perturbation_technique == "synonym_replacement":
-                    perturbed_candidate = synonym_replacement(text_ls, wpc)
+                    perturbed_candidate,translated_words = synonym_replacement(text_ls, wpc)
                     
                 perturbed_candidate_sim_score = sim_predictor.semantic_sim(original_text, perturbed_candidate)
-                # ic(wpc[-1][-1])
+                
                 candidate_comparison[perturbed_candidate] = (perturbed_candidate_sim_score, wpc[-1][-1], wpc)
 
-            # ic(candidate_comparison)
-            
             sorted_candidate_comparison = sorted(candidate_comparison.keys(), key=lambda x: (float(candidate_comparison[x][0]), float(candidate_comparison[x][1])), reverse=True)
 
             perturbed_text = sorted_candidate_comparison[0]
@@ -141,20 +153,12 @@ def attack(text_ls,
         perturbed_label, perturbed_probs, perturbed_prob = logit_prob(perturbed_text, predictor, tokenizer)
         
         
-        translated_words = trans_dict(trans_word, perturbation_technique, lang_codemix)
+        # translated_words = trans_dict(trans_word, perturbation_technique, lang_codemix)
         
         orig_probs = np.round(orig_probs.detach().cpu().numpy().tolist(),4)
         perturbed_probs = np.round(perturbed_probs.detach().cpu().numpy().tolist(),4)
         
         running_time = round(time.time() - start_time, 2)
         
-        # ic(type(perturbed_text))
-        # ic(type(perturbed_semantic_sim))
-        # ic(type(orig_label))
-        # ic(type(orig_probs))
-        # ic(type(perturbed_label))
-        # ic(type(perturbed_probs))
-        # ic(type(translated_words))
-        # ic(type(running_time))
-        
+        # ic(perturbed_text, perturbed_semantic_sim, orig_label, orig_probs, perturbed_label, perturbed_probs, translated_words, running_time)
         return perturbed_text, perturbed_semantic_sim, orig_label, orig_probs, perturbed_label, perturbed_probs, translated_words, running_time

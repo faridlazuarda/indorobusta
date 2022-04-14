@@ -67,8 +67,18 @@ def codemix_perturbation(words, target_lang, words_perturb):
     'ms': 'malay'
     'en': 'english'
     """
-    
     translator = GoogleTranslator(source="id", target=target_lang)
+    new_wp = []
+    for wp in words_perturb:
+        if wp[1].isalpha():
+            new_wp.append(wp[1])
+    
+    if len(new_wp) == 1:
+        new_wp_trans = dict(zip(new_wp, translator.translate(new_wp[0])))
+    elif len(new_wp) == 0:
+        return ' '.join(words), {}
+        
+    new_wp_trans = dict(zip(new_wp, translator.translate_batch(new_wp)))
     
     supported_langs = ["su", "jw", "ms", "en", "fr", "it"]
     
@@ -78,23 +88,38 @@ def codemix_perturbation(words, target_lang, words_perturb):
     new_words = words.copy()
     
     if len(words_perturb) >= 1:
-        for perturb_word in words_perturb:
-            new_words = [translator.translate(word) if word == perturb_word[1] and word.isalpha() else word for word in new_words]
+        for perturb_word in new_wp_trans.keys():
+            new_words = [new_wp_trans[perturb_word] if word == perturb_word and word.isalpha() else word for word in new_words]
 
-    sentence = ' '.join(new_words)
-
-    return sentence
+    return ' '.join(new_words), new_wp_trans
 
 def synonym_replacement(words, words_perturb):    
+    # new_words = words.copy()
+    new_wp = []
+    for wp in words_perturb:
+        if wp[1].isalpha():
+            new_wp.append(wp[1])
+    
+    if len(new_wp) == 1:
+        new_wp_trans = dict(zip(new_wp, get_synonyms(new_wp[0])[0]))
+    elif len(new_wp) == 0:
+        return ' '.join(words), {}
+    
+    wp_trans=[]
+    for wp in new_wp:
+        wp_trans.append(get_synonyms(wp)[0])
+    
+    new_wp_trans = dict(zip(new_wp, wp_trans))
+    
     new_words = words.copy()
-       
+    
     if len(words_perturb) >= 1:
-        for perturb_word in words_perturb:
-            new_words = [get_synonyms(word)[0] if word == perturb_word[1] and word.isalpha() else word for word in new_words]
+        for perturb_word in new_wp_trans.keys():
+            new_words = [new_wp_trans[perturb_word[1]] if word == perturb_word[1] and word.isalpha() else word for word in new_words]
 
     sentence = ' '.join(new_words)
     
-    return sentence
+    return new_words, new_wp_trans
 
 # fungsi untuk mencari kandidat lain ketika sebuah kandidat perturbasi kurang dari sim_score_threshold
 def swap_minimum_importance_words(words_perturb, top_importance_words):
@@ -121,7 +146,7 @@ def swap_minimum_importance_words(words_perturb, top_importance_words):
             if len(temp_wp) == 0:
                 break
             
-            swapped_wp = np.array([(temp_wp) for i in range(len_ul)])
+            swapped_wp = np.unique(np.array([(temp_wp) for i in range(len_ul)]))
             
             ic(swapped_wp)
             for j in range(len(swapped_wp)):

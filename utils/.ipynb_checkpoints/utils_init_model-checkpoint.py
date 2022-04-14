@@ -1,11 +1,12 @@
-import torch
 import os
 # os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"  
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"  
+import torch
+
 # device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
 # torch.cuda.set_device(device)
 
-from transformers import BertForSequenceClassification, BertConfig, BertTokenizer, AutoTokenizer, XLMRobertaTokenizer, XLMRobertaConfig, XLMRobertaForSequenceClassification, AutoModelForSequenceClassification
+from transformers import BertForSequenceClassification, BertConfig, BertTokenizer, AutoTokenizer, XLMRobertaTokenizer, XLMRobertaConfig, XLMRobertaForSequenceClassification, AutoModelForSequenceClassification, XLMRobertaModel
 
 import torch
 from torch import optim
@@ -17,8 +18,8 @@ from .utils_metrics import document_sentiment_metrics_fn
 from .utils_forward_fn import forward_sequence_classification
 from .utils_data_utils import DocumentSentimentDataset, DocumentSentimentDataLoader, EmotionDetectionDataset, EmotionDetectionDataLoader
 
-
-device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
@@ -83,6 +84,19 @@ def init_model(id_model, downstream_task, seed):
         # model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-base', config=config)
         model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
         
+    elif id_model == "XLM-R-Large":
+        tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-large')
+        config = XLMRobertaConfig.from_pretrained("xlm-roberta-large")
+        if downstream_task == "sentiment":
+            config.num_labels = DocumentSentimentDataset.NUM_LABELS
+        elif downstream_task == "emotion":
+            config.num_labels = EmotionDetectionDataset.NUM_LABELS
+        else:
+            return "Task does not match"
+
+        model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-large', config=config)
+        # model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+
     elif id_model == "mBERT":
         tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-uncased', local_files_only=True)
         config = BertConfig.from_pretrained("bert-base-multilingual-uncased")
