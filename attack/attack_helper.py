@@ -146,7 +146,7 @@ def swap_minimum_importance_words(words_perturb, top_importance_words):
             if len(temp_wp) == 0:
                 break
             
-            swapped_wp = np.unique(np.array([(temp_wp) for i in range(len_ul)]))
+            swapped_wp = np.array([(temp_wp) for i in range(len_ul)])
             
             ic(swapped_wp)
             for j in range(len(swapped_wp)):

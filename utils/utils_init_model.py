@@ -5,7 +5,7 @@ import torch
 
 # device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
 # torch.cuda.set_device(device)
-
+import numpy as np
 from transformers import BertForSequenceClassification, BertConfig, BertTokenizer, AutoTokenizer, XLMRobertaTokenizer, XLMRobertaConfig, XLMRobertaForSequenceClassification, AutoModelForSequenceClassification, XLMRobertaModel
 
 import torch
@@ -32,16 +32,20 @@ def metrics_to_string(metric_dict):
     return ' '.join(string_list)
 
 def logit_prob(text_ls, predictor, tokenizer):
-    original_text = text_ls
-    # print(text_ls)
-    subwords = tokenizer.encode(text_ls)
-    subwords = torch.LongTensor(subwords).view(1, -1).to(predictor.device)
-
-    logits = predictor(subwords)[0]
-    orig_label = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
-    
-    orig_probs = F.softmax(logits, dim=-1).squeeze()
-    orig_prob = F.softmax(logits, dim=-1).squeeze()[orig_label].detach().cpu().numpy()
+    with torch.inference_mode():
+        subwords = np.array(tokenizer(text_ls)['input_ids'])
+        if subwords.ndim <= 1:
+            subwords = torch.tensor(subwords).view(1, -1).to(predictor.device)
+            logits = predictor(subwords)[0]
+            orig_label = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+            orig_probs = F.softmax(logits, dim=-1).squeeze()
+            orig_prob = F.softmax(logits, dim=-1).squeeze()[orig_label].detach().cpu().numpy()
+        else:
+            subwords = torch.tensor(subwords).to(predictor.device)
+            logits = finetuned_model(subwords)[0]
+            orig_label = [t.squeeze().item() for t in torch.topk(logits, k=1, dim=-1)[1]]
+            orig_probs = F.softmax(logits, dim=-1).squeeze()
+            orig_prob = [F.softmax(logits, dim=-1).squeeze()[idx][label].detach().cpu().numpy() for idx, label in enumerate(orig_label)]
     
     return orig_label, orig_probs, orig_prob
 
@@ -94,8 +98,8 @@ def init_model(id_model, downstream_task, seed):
         else:
             return "Task does not match"
 
-        model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-large', config=config)
-        # model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        # model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-large', config=config)
+        model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
 
     elif id_model == "mBERT":
         tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-uncased', local_files_only=True)
