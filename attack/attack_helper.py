@@ -115,11 +115,9 @@ def synonym_replacement(words, words_perturb):
     
     if len(words_perturb) >= 1:
         for perturb_word in new_wp_trans.keys():
-            new_words = [new_wp_trans[perturb_word[1]] if word == perturb_word[1] and word.isalpha() else word for word in new_words]
-
-    sentence = ' '.join(new_words)
+            new_words = [new_wp_trans[perturb_word] if word == perturb_word and word.isalpha() else word for word in new_words]
     
-    return new_words, new_wp_trans
+    return ' '.join(new_words), new_wp_trans
 
 # fungsi untuk mencari kandidat lain ketika sebuah kandidat perturbasi kurang dari sim_score_threshold
 def swap_minimum_importance_words(words_perturb, top_importance_words):

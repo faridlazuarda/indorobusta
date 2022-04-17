@@ -52,17 +52,28 @@ def attack(text_ls,
         text_ls = original_text.split()
         text_ls = [word for word in text_ls if word.isalnum()]
         len_text = len(text_ls)
+        # # ic(len_text)
         half_sim_score_window = (sim_score_window - 1) // 2
+        # num_queries = 1
         
         leave_1_texts = [' '.join(text_ls[:ii] + [tokenizer.mask_token] + text_ls[min(ii + 1, len_text):]) for ii in range(len_text)]
                 
         leave_1_probs = []
         leave_1_probs_argmax = []
+        # num_queries += len(leave_1_texts)
         
-        leave_1_probs_argmax, leave_1_probs, _ = logit_prob(leave_1_texts, predictor, tokenizer)
+# torch.inference mode
+        for text_leave_1 in leave_1_texts:
+            orig_label_leave_1, orig_probs_leave_1, orig_prob_leave_1 = logit_prob(text_leave_1, predictor, tokenizer)
+            leave_1_probs.append(orig_probs_leave_1.detach().cpu().numpy())
+            leave_1_probs_argmax.append(orig_label_leave_1)
         
-        end_time_logit = round(time.time() - start_time_logit, 4)
-        leave_1_probs = torch.tensor(np.array(leave_1_probs.detach().cpu().numpy())).to("cuda:0")
+        # # running_time_a = round(time.time() - start_time, 2)
+        # # ic(running_time_a)
+        
+        # # start_time_conv = time.time()
+        leave_1_probs = torch.tensor(np.array(leave_1_probs)).to("cuda:0")
+        # # end_time_conv = round(time.time() - start_time, 2)
         
         orig_prob_extended=np.empty(len_text)
         orig_prob_extended.fill(orig_prob)
@@ -85,22 +96,26 @@ def attack(text_ls,
         
         num_perturbation = math.floor(len(words_perturb)*att_ratio)
         
-        
         if num_perturbation < 1:
             num_perturbation = 1
         
 #       top words perturb berisi list kata terpenting yang tidak akan diswitch ketika first_codemix_sim_score < sim_score_threshold
         top_words_perturb = words_perturb[:num_perturbation]
         trans_word = [twp[1] for twp in top_words_perturb]
-        
+
         if perturbation_technique == "codemixing":
             perturbed_text,translated_words = codemix_perturbation(text_ls, lang_codemix, top_words_perturb)
         elif perturbation_technique == "synonym_replacement":
             perturbed_text,translated_words = synonym_replacement(text_ls, top_words_perturb)
+            # ic(perturbed_text)
         
-        
+        # start_time_use = time.time()
         first_perturbation_sim_score = sim_predictor.semantic_sim(original_text, perturbed_text)
+        # end_time_use = round(time.time() - start_time, 2)
         
+        # ic(end_time_use)
+        
+        # ic(first_perturbation_sim_score)
         
         words_perturb_candidates = []
         if first_perturbation_sim_score < sim_score_threshold:
@@ -138,8 +153,13 @@ def attack(text_ls,
         
         perturbed_label, perturbed_probs, perturbed_prob = logit_prob(perturbed_text, predictor, tokenizer)
         
+        
+        # translated_words = trans_dict(trans_word, perturbation_technique, lang_codemix)
+        
         orig_probs = np.round(orig_probs.detach().cpu().numpy().tolist(),4)
         perturbed_probs = np.round(perturbed_probs.detach().cpu().numpy().tolist(),4)
         
-        running_time = round(time.time() - start_time, 4)
+        running_time = round(time.time() - start_time, 2)
+        
+        # ic(perturbed_text, perturbed_semantic_sim, orig_label, orig_probs, perturbed_label, perturbed_probs, translated_words, running_time)
         return perturbed_text, perturbed_semantic_sim, orig_label, orig_probs, perturbed_label, perturbed_probs, translated_words, running_time
