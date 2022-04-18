@@ -31,17 +31,24 @@ def metrics_to_string(metric_dict):
         string_list.append('{}:{:.2f}'.format(key, value))
     return ' '.join(string_list)
 
-def logit_prob(text_ls, predictor, tokenizer):
-    # original_text = text_ls
-    # print(text_ls)
-    subwords = tokenizer.encode(text_ls)
-    subwords = torch.LongTensor(subwords).view(1, -1).to(predictor.device)
+def logit_prob(text_ls, predictor, tokenizer, batch=False):
+    with torch.inference_mode():
+        if(batch==True):
+            subwords = tokenizer.batch_encode_plus(text_ls, return_tensors="pt", padding=True)['input_ids'].to(predictor.device)
+            logits = predictor(subwords).logits
+            # ic(logits)
+            orig_label = [t.squeeze().item() for t in torch.topk(logits, k=1, dim=-1)[1]]
+            orig_probs = F.softmax(logits, dim=-1).squeeze()
+            orig_prob = [F.softmax(logits, dim=-1).squeeze()[idx][label].detach().cpu().numpy() for idx, label in enumerate(orig_label)]
+        else:
+            subwords = tokenizer.encode(text_ls)
+            subwords = torch.LongTensor(subwords).view(1, -1).to(predictor.device)
 
-    logits = predictor(subwords)[0]
-    orig_label = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
-    
-    orig_probs = F.softmax(logits, dim=-1).squeeze()
-    orig_prob = F.softmax(logits, dim=-1).squeeze()[orig_label].detach().cpu().numpy()
+            logits = predictor(subwords)[0]
+            orig_label = torch.topk(logits, k=1, dim=-1)[1].squeeze().item()
+
+            orig_probs = F.softmax(logits, dim=-1).squeeze()
+            orig_prob = F.softmax(logits, dim=-1).squeeze()[orig_label].detach().cpu().numpy()
     
     return orig_label, orig_probs, orig_prob
 

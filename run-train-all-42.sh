@@ -1,4 +1,4 @@
-random_seed=26092020
+random_seed=42
 cuda_id=4
 
 

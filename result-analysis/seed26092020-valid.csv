@@ -223,3 +223,5 @@ xlmr-sentiment-codemixing-su-adv-0.2-valid.csv,xlmr,sentiment,codemixing,su,0.2,
 xlmr-sentiment-codemixing-su-adv-0.4-valid.csv,xlmr,sentiment,codemixing,su,0.4,0.9301587301587302,0.8738095238095238,0.05634920634920637,0.938890561887196,9.468452380952382
 xlmr-sentiment-codemixing-su-adv-0.6-valid.csv,xlmr,sentiment,codemixing,su,0.6,0.9301587301587302,0.861904761904762,0.06825396825396823,0.9130297053427924,11.519960317460315
 xlmr-sentiment-codemixing-su-adv-0.8-valid.csv,xlmr,sentiment,codemixing,su,0.8,0.9301587301587302,0.8547619047619047,0.07539682539682546,0.8887544367994581,11.511825396825396
+xlmrlarge-emotion-codemixing-en-adv-0.2-valid.csv,xlmrlarge,emotion,codemixing,en,0.2,0.775,0.6590909090909091,0.11590909090909096,0.9150133092972366,0.9441572727272728
+xlmrlarge-emotion-codemixing-jw-adv-0.2-valid.csv,xlmrlarge,emotion,codemixing,jw,0.2,0.775,0.6272727272727273,0.1477272727272727,0.9314328374510462,1.4725461363636363

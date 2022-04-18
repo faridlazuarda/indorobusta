@@ -46,7 +46,9 @@ def result_summary(seed, dataset):
 
             df_dictionary = pd.DataFrame([record])
             result = pd.concat([result, df_dictionary], ignore_index=True)
-            
+    ic(seed)
+    ic(dataset)
+    ic(result)
     # result.to_csv("result-analysis/" + str() + ".csv")
     result = result.sort_values(by=['model_target', 'downstream_task', 'codemix_lang', 'perturb_ratio'])
     result.to_csv(os.getcwd() + r'/result-analysis/seed'+str(seed)+"-"+str(dataset)+".csv", index=False)
@@ -65,4 +67,19 @@ if __name__ == "__main__":
     result_summary(
         seed=42,
         dataset="valid"
+    )
+    
+    result_summary(
+        seed=26092020,
+        dataset="train"
+    )
+    
+    result_summary(
+        seed=24032022,
+        dataset="train"
+    )
+    
+    result_summary(
+        seed=42,
+        dataset="train"
     )
