@@ -74,12 +74,12 @@ if __name__ == "__main__":
         dataset="train"
     )
     
-    result_summary(
-        seed=24032022,
-        dataset="train"
-    )
+#     result_summary(
+#         seed=24032022,
+#         dataset="train"
+#     )
     
-    result_summary(
-        seed=42,
-        dataset="train"
-    )
+#     result_summary(
+#         seed=42,
+#         dataset="train"
+#     )

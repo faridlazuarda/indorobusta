@@ -1,5 +1,5 @@
 random_seed=24032022
-cuda_id=4
+cuda_id=5
 
 
 # CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT --downstream_task emotion --attack_strategy adversarial --finetune_epoch 10 --exp_name indobert-emotion-codemixing-en-adv-0.2-train  --perturbation_technique codemixing --perturb_ratio 0.2 --dataset train --perturb_lang en --seed $random_seed 
@@ -333,7 +333,7 @@ CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target XLM-R-Large --downs
 
 CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target XLM-R-Large --downstream_task emotion --attack_strategy adversarial --finetune_epoch 10 --exp_name xlmrlarge-emotion-codemixing-fr-adv-0.8-train --perturbation_technique codemixing --perturb_ratio 0.8 --dataset train --perturb_lang fr --seed $random_seed 
 
-CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target XLM-R-Large --downstream_task emotion --attack_strategy adversarial  --finetune_epoch 10 --exp_name xlmrlarge-emotion-sr-adv-0.8-train --perturbation_technique synonym_replacement --perturb_ratio 0.8 --dataset train --seed $random_seed
+# CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target XLM-R-Large --downstream_task emotion --attack_strategy adversarial  --finetune_epoch 10 --exp_name xlmrlarge-emotion-sr-adv-0.8-train --perturbation_technique synonym_replacement --perturb_ratio 0.8 --dataset train --seed $random_seed
 
 
 
@@ -349,7 +349,7 @@ CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target mBERT --downstream_
 
 CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target mBERT --downstream_task emotion --attack_strategy adversarial --finetune_epoch 10 --exp_name mbert-emotion-codemixing-fr-adv-0.8-train --perturbation_technique codemixing --perturb_ratio 0.8 --dataset train --perturb_lang fr --seed $random_seed 
 
-CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target mBERT --downstream_task emotion --attack_strategy adversarial  --finetune_epoch 10 --exp_name mbert-emotion-sr-adv-0.8-train --perturbation_technique synonym_replacement --perturb_ratio 0.8 --dataset train --seed $random_seed
+# CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target mBERT --downstream_task emotion --attack_strategy adversarial  --finetune_epoch 10 --exp_name mbert-emotion-sr-adv-0.8-train --perturbation_technique synonym_replacement --perturb_ratio 0.8 --dataset train --seed $random_seed
 
 
 
@@ -659,7 +659,7 @@ CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT --downstre
 
 CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT --downstream_task sentiment --attack_strategy adversarial --finetune_epoch 10 --exp_name indobert-sentiment-codemixing-fr-adv-0.8-train --perturbation_technique codemixing --perturb_ratio 0.8 --dataset train --perturb_lang fr --seed $random_seed 
 
-CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT --downstream_task sentiment --attack_strategy adversarial  --finetune_epoch 10 --exp_name indobert-sentiment-sr-adv-0.8-train --perturbation_technique synonym_replacement --perturb_ratio 0.8 --dataset train --seed $random_seed
+# CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT --downstream_task sentiment --attack_strategy adversarial  --finetune_epoch 10 --exp_name indobert-sentiment-sr-adv-0.8-train --perturbation_technique synonym_replacement --perturb_ratio 0.8 --dataset train --seed $random_seed
 
 
 CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT-Large --downstream_task sentiment --attack_strategy adversarial --finetune_epoch 5 --exp_name indobertlarge-sentiment-codemixing-en-adv-0.8-train  --perturbation_technique codemixing --perturb_ratio 0.8 --dataset train  --perturb_lang en --seed $random_seed  
@@ -670,7 +670,7 @@ CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT-Large --do
 
 CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT-Large --downstream_task sentiment --attack_strategy adversarial --finetune_epoch 5 --exp_name indobertlarge-sentiment-codemixing-ms-adv-0.8-train --perturbation_technique codemixing --perturb_ratio 0.8 --dataset train --perturb_lang ms --seed $random_seed 
 
-CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT-Large --downstream_task sentiment --attack_strategy adversarial --finetune_epoch 5 --exp_name indobertlarge-sentiment-codemixing-fr-adv-0.8-train --perturbation_technique codemixing --perturb_ratio 0.8 --dataset train --perturb_lang fr --seed $random_seed 
+# CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT-Large --downstream_task sentiment --attack_strategy adversarial --finetune_epoch 5 --exp_name indobertlarge-sentiment-codemixing-fr-adv-0.8-train --perturbation_technique codemixing --perturb_ratio 0.8 --dataset train --perturb_lang fr --seed $random_seed 
 
 CUDA_VISIBLE_DEVICES=$cuda_id python3 main.py --model_target IndoBERT-Large --downstream_task sentiment --attack_strategy adversarial --finetune_epoch 5 --exp_name indobertlarge-sentiment-codemixing-it-adv-0.8-train --perturbation_technique codemixing --perturb_ratio 0.8 --dataset train --perturb_lang it --seed $random_seed 
 
