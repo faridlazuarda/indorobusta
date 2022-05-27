@@ -4,7 +4,7 @@ import gc
 gc.collect()
 
 # os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-# os.environ["CUDA_VISIBLE_DEVICES"] = "1,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 
 from sklearn.metrics import accuracy_score
 import swifter
@@ -16,17 +16,90 @@ from utils.utils_init_dataset import set_seed
 from utils.utils_semantic_use import USE
 from utils.utils_data_utils import DocumentSentimentDataLoader, EmotionDetectionDataLoader
 from utils.utils_metrics import document_sentiment_metrics_fn
-from utils.utils_init_model import text_logit, fine_tuning_model, eval_model, init_model, logit_prob, load_word_index
+from utils.utils_init_model import text_logit, fine_tuning_model, eval_model, logit_prob, load_word_index, init_model
 from utils.get_args import get_args
 
 from transformers import BertForSequenceClassification, BertConfig, BertTokenizer, AutoTokenizer, XLMRobertaTokenizer, XLMRobertaConfig, XLMRobertaForSequenceClassification, AutoModelForSequenceClassification
 
+from torch.utils.data import Dataset, DataLoader
+
 from attack.adv_attack import attack
 import os, sys
+from icecream import ic
+import pandas as pd
+import numpy as np
 
 
 
 
+
+# def init_model(id_model, downstream_task, seed):
+#     if id_model == "IndoBERT":
+#         tokenizer = BertTokenizer.from_pretrained('indobenchmark/indobert-base-p2')
+#         config = BertConfig.from_pretrained('indobenchmark/indobert-base-p2')
+#         if downstream_task == "sentiment":
+#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
+#         elif downstream_task == "emotion":
+#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
+#         else:
+#             return "Task does not match"
+        
+#         model = BertForSequenceClassification.from_pretrained('indobenchmark/indobert-base-p2', config=config)
+#         # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        
+#     elif id_model == "XLM-R":
+#         tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-base')
+#         config = XLMRobertaConfig.from_pretrained("xlm-roberta-base")
+#         if downstream_task == "sentiment":
+#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
+#         elif downstream_task == "emotion":
+#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
+#         else:
+#             return "Task does not match"
+        
+#         model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-base', config=config)
+#         # model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        
+#     elif id_model == "XLM-R-Large":
+#         tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-large')
+#         config = XLMRobertaConfig.from_pretrained("xlm-roberta-large")
+#         if downstream_task == "sentiment":
+#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
+#         elif downstream_task == "emotion":
+#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
+#         else:
+#             return "Task does not match"
+
+#         model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-large', config=config)
+#         # model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+
+#     elif id_model == "mBERT":
+#         tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-uncased')
+#         config = BertConfig.from_pretrained("bert-base-multilingual-uncased")
+#         if downstream_task == "sentiment":
+#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
+#         elif downstream_task == "emotion":
+#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
+#         else:
+#             return "Task does not match"
+        
+#         model = BertForSequenceClassification.from_pretrained('bert-base-multilingual-uncased', config=config)
+#         # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        
+#     elif id_model == "IndoBERT-Large":
+#         tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-large-p2")
+#         config = BertConfig.from_pretrained("indobenchmark/indobert-large-p2")
+#         if downstream_task == "sentiment":
+#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
+#         elif downstream_task == "emotion":
+#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
+#         else:
+#             return "Task does not match"
+        
+#         model = BertForSequenceClassification.from_pretrained("indobenchmark/indobert-large-p2", config=config)
+#         # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+    
+#     return tokenizer, config, model
 
 #####
 # Emotion Twitter
@@ -49,9 +122,9 @@ class EmotionDetectionDataset(Dataset):
         self.no_special_token = no_special_token
         
     def __getitem__(self, index):
-        tweet, label = self.data.loc[index,'tweet'], self.data.loc[index,'label']        
-        subwords = self.tokenizer.encode(tweet, add_special_tokens=not self.no_special_token)
-        return np.array(subwords), np.array(label), tweet
+        perturbed_text, label = self.data.loc[index,'perturbed_text'], self.data.loc[index,'label']        
+        subwords = self.tokenizer.encode(perturbed_text, add_special_tokens=not self.no_special_token)
+        return np.array(subwords), np.array(label), perturbed_text
     
     def __len__(self):
         return len(self.data)
@@ -79,9 +152,9 @@ class DocumentSentimentDataset(Dataset):
     
     def __getitem__(self, index):
         data = self.data.loc[index,:]
-        text, sentiment = data['text'], data['sentiment']
-        subwords = self.tokenizer.encode(text, add_special_tokens=not self.no_special_token)
-        return np.array(subwords), np.array(sentiment), data['text']
+        perturbed_text, sentiment = data['perturbed_text'], data['sentiment']
+        subwords = self.tokenizer.encode(perturbed_text, add_special_tokens=not self.no_special_token)
+        return np.array(subwords), np.array(sentiment), data['perturbed_text']
     
     def __len__(self):
         return len(self.data)    
@@ -100,18 +173,22 @@ def get_args():
 
 
 
-def load_dataset_loader(dataset_id, ds_type, tokenizer, path):
+def load_dataset_loader(dataset_id, ds_type, tokenizer, path=None):
+    print(dataset_id, ds_type, tokenizer, path)
+    
     dataset_path = None
     dataset = None
     loader = None
     if(dataset_id == 'sentiment'):
         if(ds_type == "train"):
             # dataset_path = './dataset/smsa-document-sentiment/train_preprocess.tsv'
-            dataset = DocumentSentimentDataset(dataset_path, tokenizer, lowercase=True)
+            ic(path)
+            dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=True)  
         elif(ds_type == "valid"):
             # dataset_path = './dataset/smsa-document-sentiment/valid_preprocess.tsv'
-            dataset = DocumentSentimentDataset(dataset_path, tokenizer, lowercase=True)
+            ic(path)
+            dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
         elif(ds_type == "test"):
             dataset_path = './dataset/smsa-document-sentiment/test_preprocess_masked_label.tsv'
@@ -121,107 +198,85 @@ def load_dataset_loader(dataset_id, ds_type, tokenizer, path):
     elif(dataset_id == 'emotion'):
         if(ds_type == "train"):
             # dataset_path = './dataset/emot-emotion-twitter/train_preprocess.csv'
-            dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
+            dataset = EmotionDetectionDataset(path, tokenizer, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=True)  
         elif(ds_type == "valid"):
             # dataset_path = './dataset/emot-emotion-twitter/valid_preprocess.csv'
-            dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
+            dataset = EmotionDetectionDataset(path, tokenizer, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
         elif(ds_type == "test"):
             dataset_path = './dataset/emot-emotion-twitter/test_preprocess_masked_label.csv'
             dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
-
+    
     return dataset, loader, dataset_path
 
 
 
-def main(
+def main(        
         model_target,
         downstream_task,
-        attack_strategy,
-        finetune_epoch,
-        num_sample,
         exp_name,
-        perturbation_technique,
-        perturb_ratio,
-        dataset,
-        perturb_lang="id",
-        seed=26092020
+        seed
     ):
     
     set_seed(seed)
-    use = USE()
+    # use = USE()
 
     #     baca hasil perturb -> finetuning pake perturbed training -> predict data valid
     tokenizer, config, model = init_model(model_target, downstream_task, seed)
     w2i, i2w = load_word_index(downstream_task)
     
+    trainpath = os.getcwd() + r'/result/seed'+str(seed)+"/train/"+exp_name+"-train"+".csv"
+    validpath = os.getcwd() + r'/result/seed'+str(seed)+"/valid/"+exp_name+"-valid"+".csv"
     
-    trainpath = exp_name = model_target+"-"+downstream_task+"-"+attack_strategy+"-"+perturb_lang+"-adv"+"-"+str(perturb_ratio)+"-"+"train"
+    ic(trainpath)
+    ic(validpath)
     
-    validpath = exp_name = model_target+"-"+downstream_task+"-"+attack_strategy+"-"+perturb_lang+"-adv"+"-"+str(perturb_ratio)+"-"+"valid"
-
-    
-    train_dataset, train_loader, train_path = load_dataset_loader(downstream_task, 'train', tokenizer, path)
-    valid_dataset, valid_loader, valid_path = load_dataset_loader(downstream_task, 'valid', tokenizer, path)
-    test_dataset, test_loader, test_path = load_dataset_loader(downstream_task, 'test', tokenizer)
+    train_dataset, train_loader, _ = load_dataset_loader(downstream_task, 'train', tokenizer, trainpath)
+    valid_dataset, valid_loader, _ = load_dataset_loader(downstream_task, 'valid', tokenizer, validpath)
+    # test_dataset, test_loader, test_path = load_dataset_loader(downstream_task, 'test', tokenizer)
     
     
     
-
-    finetuned_model = fine_tuning_model(model, i2w, train_loader, valid_loader, finetune_epoch)
+    if "sentiment" in trainpath: 
+        finetuned_model = fine_tuning_model(model, i2w, train_loader, valid_loader, epochs=5)
+    else: 
+        finetuned_model = fine_tuning_model(model, i2w, train_loader, valid_loader, epochs=10)
     
-    # finetuned_model.save_pretrained(os.getcwd() + r"/models/seed"+str(seed)+ "/"+str(model_target)+"-"+str(downstream_task))
-    
-#     if model_target == "IndoBERT" or model_target == "mBERT" or model_target == "IndoBERT-Large":
-#         finetuned_model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(model_target)+"-"+str(downstream_task))
-#     else:
-#         finetuned_model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(model_target)+"-"+str(downstream_task))
-    
-#     if dataset == "valid":
-#         exp_dataset = valid_dataset.load_dataset(valid_path).iloc[388:393]
-#     elif dataset == "train":
-#         exp_dataset = train_dataset.load_dataset(train_path)
-#     # exp_dataset = dd.from_pandas(exp_dataset, npartitions=10)
-#     text,label = None,None
-
-#     # print(perturbation_technique)
-#     if downstream_task == 'sentiment':
-#         text = 'text'
-#         label = 'sentiment'
-#         exp_dataset[['perturbed_text', 'perturbed_semantic_sim', 'pred_label', 'pred_proba', 'perturbed_label', 'perturbed_proba', 'translated_word(s)', 'running_time(s)']] = exp_dataset.progress_apply(
-#             lambda row: attack(
-#                 text_ls = row.text,
-#                 true_label = row.sentiment,
-#                 predictor = finetuned_model,
-#                 tokenizer = tokenizer, 
-#                 att_ratio = perturb_ratio,
-#                 perturbation_technique = perturbation_technique,
-#                 lang_codemix = perturb_lang,
-#                 sim_predictor = use), axis=1, result_type='expand'
-#         )
-#     elif downstream_task == 'emotion':
-#         text = 'tweet'
-#         label = 'label'
-#         exp_dataset[['perturbed_text', 'perturbed_semantic_sim', 'pred_label', 'pred_proba', 'perturbed_label', 'perturbed_proba', 'translated_word(s)', 'running_time(s)']] = exp_dataset.progress_apply(
-#             lambda row: attack(
-#                 text_ls = row.tweet,
-#                 true_label = row.label,
-#                 predictor = finetuned_model,
-#                 tokenizer = tokenizer, 
-#                 att_ratio = perturb_ratio,
-#                 perturbation_technique = perturbation_technique,
-#                 lang_codemix = perturb_lang,
-#                 sim_predictor = use), axis=1, result_type='expand'
-#         )
-        
 if __name__ == "__main__":   
-    args = get_args()
+#     args = get_args()
+    
+#     main(
+#         args.model_target,
+#         args.downstream_task,
+#         args.exp_name,
+#         args.seed
+#     )
+
+    exp_name = "xlmr-sentiment-codemixing-fr-adv-0.8"
+    # exp_name = "mbert-emotion-sr-adv-0.8-train"
+    names = exp_name.split("-")
+    
+    print(exp_name.split("-"))
+    
+    model_tgt = names[0]
+    downstream_task = names[1]
+    seed = 26092020
+    
+    model_map = {
+        'indobert': 'IndoBERT',
+        'indobertlarge': 'IndoBERT-Large',
+        'xlmr': 'XLM-R',
+        'xlmrlarge': 'XLM-R-Large',
+        'mbert': 'mBERT'
+    }
+    
+    model_target = model_map[model_tgt]
     
     main(
-        args.model_target,
-        args.downstream_task,
-        args.exp_name,
-        args.seed
+        model_target,
+        downstream_task,
+        exp_name,
+        seed
     )

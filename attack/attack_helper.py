@@ -5,6 +5,8 @@ from nltk.corpus import stopwords
 import copy
 from deep_translator import GoogleTranslator
 import numpy as np
+import os
+import ast
 
 # nltk.download('stopwords')
 # nltk.download('punkt')
@@ -60,6 +62,68 @@ def get_synonyms(word):
     else:
         return list(clean_synonyms)
 
+def read_dict(filename):
+    with open(filename) as f:
+        data = f.read()
+      
+    # reconstructing the data as a dictionary
+    d = ast.literal_eval(data)
+    # print(type(d))
+    return d
+
+def translate_batch(wordlist,translator, target_lang):
+    translated = []
+    # print(wordlist)
+    for w in wordlist:
+        # print(translator[w])
+        if w in translator.keys():
+            if translator[w] is None:
+                online_trans = GoogleTranslator(source="id", target=target_lang)
+                trans = online_trans.translate(w)
+            else:
+                trans = translator[w]
+        else:
+            online_trans = GoogleTranslator(source="id", target=target_lang)
+            trans = online_trans.translate(w)
+        if not trans.isalpha():
+            trans = w
+        translated.append(trans)
+    # ic(translated)
+    return translated
+
+def codemix_perturbation_cache(words, target_lang, words_perturb):
+    translator = read_dict(os.getcwd() + r"/dicts/dict_"+target_lang+".txt")
+    new_wp = []
+    for wp in words_perturb:
+        if wp[1].isalpha():
+            new_wp.append(wp[1])
+    
+    # ic(new_wp)
+    if len(new_wp) == 1:
+        if new_wp[0] in translator.keys():
+            new_wp_trans = dict(zip(new_wp, translator[new_wp[0]]))
+        else:
+            online_trans = GoogleTranslator(source="id", target=target_lang)
+            new_wp_trans = dict(zip(new_wp, online_trans.translate(new_wp[0])))
+    elif len(new_wp) == 0:
+        return ' '.join(words), {}
+        
+    new_wp_trans = dict(zip(new_wp, translate_batch(new_wp,translator,target_lang)))
+    
+    supported_langs = ["su", "jw", "ms", "en", "fr", "it"]
+    
+    if target_lang not in supported_langs:
+        raise ValueError('Language Unavailable')
+    
+    new_words = words.copy()
+    
+    if len(words_perturb) >= 1:
+        for perturb_word in new_wp_trans.keys():
+            new_words = [new_wp_trans[perturb_word] if word == perturb_word and word.isalpha() else word for word in new_words]
+
+    # ic(words, words_perturb, new_words, new_wp_trans)
+    return ' '.join(new_words), new_wp_trans
+    
 def codemix_perturbation(words, target_lang, words_perturb):
     """
     'su': 'sundanese'

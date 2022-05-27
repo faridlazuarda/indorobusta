@@ -5,7 +5,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 import math
-from .attack_helper import get_synonyms, codemix_perturbation, synonym_replacement, swap_minimum_importance_words, trans_dict
+from .attack_helper import get_synonyms, codemix_perturbation, codemix_perturbation_cache, synonym_replacement, swap_minimum_importance_words, trans_dict
 
 import nltk
 from nltk.corpus import stopwords
@@ -100,7 +100,7 @@ def attack(text_ls,
         trans_word = [twp[1] for twp in top_words_perturb]
         
         if perturbation_technique == "codemixing":
-            perturbed_text,translated_words = codemix_perturbation(text_ls, lang_codemix, top_words_perturb)
+            perturbed_text,translated_words = codemix_perturbation_cache(text_ls, lang_codemix, top_words_perturb)
         elif perturbation_technique == "synonym_replacement":
             perturbed_text,translated_words = synonym_replacement(text_ls, top_words_perturb)
         
@@ -120,7 +120,7 @@ def attack(text_ls,
                 
                 if perturbation_technique == "codemixing":
 #                     bisa dicache, gaperlu request satu2
-                    perturbed_candidate,translated_words = codemix_perturbation(text_ls, lang_codemix, wpc)
+                    perturbed_candidate,translated_words = codemix_perturbation_cache(text_ls, lang_codemix, wpc)
                 elif perturbation_technique == "synonym_replacement":
                     perturbed_candidate,translated_words = synonym_replacement(text_ls, wpc)
                     
