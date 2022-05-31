@@ -105,7 +105,7 @@ def init_model(id_model, downstream_task, seed):
         model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
 
     elif id_model == "mBERT":
-        ic("mBERT")
+        # ic("mBERT")
         tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-uncased', local_files_only=True)
         config = BertConfig.from_pretrained("bert-base-multilingual-uncased")
         if downstream_task == "sentiment":
