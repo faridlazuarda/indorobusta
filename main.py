@@ -42,19 +42,20 @@ def main(
 ):
     print(exp_name)
     print(seed)
+
     set_seed(seed)
     use = USE()
 
     tokenizer, config, finetuned_model = init_model(model_target, downstream_task, seed)
     w2i, i2w = load_word_index(downstream_task)
-    
+
     train_dataset, train_loader, train_path = load_dataset_loader(downstream_task, 'train', tokenizer)
     valid_dataset, valid_loader, valid_path = load_dataset_loader(downstream_task, 'valid', tokenizer)
     test_dataset, test_loader, test_path = load_dataset_loader(downstream_task, 'test', tokenizer)
-    
+
     finetuned_model.to(device)
     # finetuned_model = fine_tuning_model(model, i2w, train_loader, valid_loader, finetune_epoch)
-    
+
     if dataset == "valid":
         exp_dataset = valid_dataset.load_dataset(valid_path)
     elif dataset == "train":
@@ -106,16 +107,20 @@ def main(
 if __name__ == "__main__":
     args = get_args()
     
-    main(
-        args.model_target,
-        args.downstream_task,
-        args.attack_strategy,
-        args.finetune_epoch,
-        args.num_sample,
-        args.exp_name,
-        args.perturbation_technique,
-        args.perturb_ratio,
-        args.dataset,
-        args.perturb_lang,
-        args.seed
-    )
+    path_to_res = os.getcwd() + r'/result/seed'+str(args.seed)+"/"+str(args.dataset)+"/"
+    dir_list_res = os.listdir(path_to_res)
+    
+    if args.exp_name+".csv" not in dir_list_res:
+        main(
+            args.model_target,
+            args.downstream_task,
+            args.attack_strategy,
+            args.finetune_epoch,
+            args.num_sample,
+            args.exp_name,
+            args.perturbation_technique,
+            args.perturb_ratio,
+            args.dataset,
+            args.perturb_lang,
+            args.seed
+        )
