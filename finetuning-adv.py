@@ -274,15 +274,15 @@ if __name__ == "__main__":
     intersect = get_intersect(args.seed)
     
     path_adv = os.getcwd() + r'/adversarial-training/result/seed'+str(args.seed)+"/"
-    dir_list_adv = [f[:-4] for f in os.listdir(path_adv)]
+    dir_list_adv = [f[:-4] for f in os.listdir(path_adv) if "ipynb" not in f]
     
-    for exp_name in intersect:
-        names = exp_name.split("-")
-        model_tgt = names[0]
-        downstream_task = names[1]
-        model_target = model_map[model_tgt]
-    
+    for exp_name in intersect:    
         if exp_name in intersect and exp_name not in dir_list_adv and 'ipynb' not in exp_name:
+            print(exp_name)
+            names = exp_name.split("-")
+            model_tgt = names[0]
+            downstream_task = names[1]
+            model_target = model_map[model_tgt]
             print(exp_name.split("-"))
             main(
                 model_target=model_target,
