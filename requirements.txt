@@ -14,7 +14,7 @@ scipy==1.7.2
 sentencepiece==0.1.95
 spacy==3.0.0
 tensorboard==2.8.0
-tensorflow==2.8.0
+tensorflow==2.8.1
 tensorflow-hub==0.7.0
 tokenizers==0.10.3
 torch==1.10.0
