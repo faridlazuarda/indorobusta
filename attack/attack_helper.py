@@ -8,6 +8,8 @@ import numpy as np
 import os
 import ast
 
+from icecream import ic
+
 # nltk.download('stopwords')
 # nltk.download('punkt')
 # nltk.download('omw')
@@ -73,30 +75,30 @@ def read_dict(filename):
 
 def translate_batch(wordlist,translator, target_lang):
     translated = []
-    # print(wordlist)
+    online_trans = GoogleTranslator(source="id", target=target_lang)
     for w in wordlist:
-        # print(translator[w])
-        if w in translator.keys():
+        if w in translator:
             if translator[w] is None:
-                online_trans = GoogleTranslator(source="id", target=target_lang)
                 trans = online_trans.translate(w)
+                ic(trans)
             else:
                 trans = translator[w]
         else:
-            online_trans = GoogleTranslator(source="id", target=target_lang)
+            # ic("2")
+            # ic(w)
             trans = online_trans.translate(w)
+            # ic(trans)
         if not trans.isalpha():
             trans = w
         translated.append(trans)
-    # ic(translated)
     return translated
 
-def codemix_perturbation_cache(words, target_lang, words_perturb):
-    translator = read_dict(os.getcwd() + r"/dicts/dict_"+target_lang+".txt")
+def codemix_perturbation_cache(words, target_lang, words_perturb, translator):
+    # translator = read_dict(os.getcwd() + r"/dicts/new_dict_"+target_lang+".txt")
     new_wp = []
     for wp in words_perturb:
         if wp[1].isalpha():
-            new_wp.append(wp[1])
+            new_wp.append(wp[1].lower())
     
     # ic(new_wp)
     if len(new_wp) == 1:
@@ -117,8 +119,11 @@ def codemix_perturbation_cache(words, target_lang, words_perturb):
     
     new_words = words.copy()
     
+    
+    # print(new_wp_trans)
     if len(words_perturb) >= 1:
         for perturb_word in new_wp_trans.keys():
+            perturb_word = perturb_word.lower()
             new_words = [new_wp_trans[perturb_word] if word == perturb_word and word.isalpha() else word for word in new_words]
 
     # ic(words, words_perturb, new_words, new_wp_trans)

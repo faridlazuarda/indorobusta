@@ -36,7 +36,7 @@ def load_dataset_loader(dataset_id, ds_type, tokenizer):
             dataset = DocumentSentimentDataset(dataset_path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
         elif(ds_type == "test"):
-            dataset_path = './dataset/smsa-document-sentiment/test_preprocess_masked_label.tsv'
+            dataset_path = './dataset/smsa-document-sentiment/test_preprocess.tsv'
             dataset = DocumentSentimentDataset(dataset_path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
 
@@ -50,7 +50,7 @@ def load_dataset_loader(dataset_id, ds_type, tokenizer):
             dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
         elif(ds_type == "test"):
-            dataset_path = './dataset/emot-emotion-twitter/test_preprocess_masked_label.csv'
+            dataset_path = './dataset/emot-emotion-twitter/test_preprocess.csv'
             dataset = EmotionDetectionDataset(dataset_path, tokenizer, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
 

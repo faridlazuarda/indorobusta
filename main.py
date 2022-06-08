@@ -24,6 +24,7 @@ from utils.utils_init_model import text_logit, fine_tuning_model, eval_model, in
 from utils.get_args import get_args
 
 from attack.adv_attack import attack
+from attack.attack_helper import read_dict
 import os, sys
 
 
@@ -45,6 +46,10 @@ def main(
 
     set_seed(seed)
     use = USE()
+    
+    translator = None
+    if perturbation_technique == "codemixing":
+        translator = read_dict(os.getcwd() + r"/dicts/new_dict_"+perturb_lang+".txt")
 
     tokenizer, config, finetuned_model = init_model(model_target, downstream_task, seed)
     w2i, i2w = load_word_index(downstream_task)
@@ -60,6 +65,8 @@ def main(
         exp_dataset = valid_dataset.load_dataset(valid_path)
     elif dataset == "train":
         exp_dataset = train_dataset.load_dataset(train_path)
+    elif dataset == "test":
+        exp_dataset = test_dataset.load_dataset(test_path)
     # exp_dataset = dd.from_pandas(exp_dataset, npartitions=10)
     text,label = None,None
 
@@ -75,6 +82,7 @@ def main(
                 tokenizer = tokenizer, 
                 att_ratio = perturb_ratio,
                 perturbation_technique = perturbation_technique,
+                translator=translator,
                 lang_codemix = perturb_lang,
                 sim_predictor = use), axis=1, result_type='expand'
         )
@@ -89,6 +97,7 @@ def main(
                 tokenizer = tokenizer, 
                 att_ratio = perturb_ratio,
                 perturbation_technique = perturbation_technique,
+                translator=translator,
                 lang_codemix = perturb_lang,
                 sim_predictor = use), axis=1, result_type='expand'
         )

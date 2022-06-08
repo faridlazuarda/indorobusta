@@ -22,6 +22,7 @@ def attack(text_ls,
            tokenizer,
            att_ratio,
            perturbation_technique,
+           translator=None,
            lang_codemix=None,
            sim_predictor=None,
            sim_score_threshold=0,
@@ -50,6 +51,7 @@ def attack(text_ls,
         return original_text, 1.000, orig_label, orig_probs, orig_label, orig_probs,'', running_time
     else:
         text_ls = splitted_text
+#         isalnum karena kata yg ada nonalnum nya punya prediksi yang ga konsisten
         text_ls = [word for word in text_ls if word.isalnum()]
         len_text = len(text_ls)
         
@@ -100,7 +102,7 @@ def attack(text_ls,
         trans_word = [twp[1] for twp in top_words_perturb]
         
         if perturbation_technique == "codemixing":
-            perturbed_text,translated_words = codemix_perturbation_cache(text_ls, lang_codemix, top_words_perturb)
+            perturbed_text,translated_words = codemix_perturbation_cache(text_ls, lang_codemix, top_words_perturb, translator)
         elif perturbation_technique == "synonym_replacement":
             perturbed_text,translated_words = synonym_replacement(text_ls, top_words_perturb)
         
@@ -120,7 +122,7 @@ def attack(text_ls,
                 
                 if perturbation_technique == "codemixing":
 #                     bisa dicache, gaperlu request satu2
-                    perturbed_candidate,translated_words = codemix_perturbation_cache(text_ls, lang_codemix, wpc)
+                    perturbed_candidate,translated_words = codemix_perturbation_cache(text_ls, lang_codemix, wpc, translator)
                 elif perturbation_technique == "synonym_replacement":
                     perturbed_candidate,translated_words = synonym_replacement(text_ls, wpc)
                     
