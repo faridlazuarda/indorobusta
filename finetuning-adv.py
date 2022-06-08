@@ -181,7 +181,7 @@ def main(
     if "sentiment" in trainpath: 
         # text = 'text'
         orig_col_label = 'sentiment'
-        finetuned_model = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15)
+        finetuned_model, best_epoch = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15)
         LABEL2INDEX = {'positive': 0, 'neutral': 1, 'negative': 2}
         test_path_orig = './dataset/smsa-document-sentiment/test_preprocess.tsv'
         test_dataset_orig = DocumentSentimentDatasetOrig(test_path_orig, tokenizer, lowercase=True)
@@ -189,7 +189,7 @@ def main(
     else: 
         # text = 'tweet'
         orig_col_label = 'label'
-        finetuned_model = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15)
+        finetuned_model, best_epoch = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15)
         LABEL2INDEX = {'sadness': 0, 'anger': 1, 'love': 2, 'fear': 3, 'happy': 4}
         test_path_orig = './dataset/emot-emotion-twitter/test_preprocess.csv'
         test_dataset_orig = EmotionDetectionDatasetOrig(test_path_orig, tokenizer, lowercase=True)
@@ -244,6 +244,7 @@ def main(
     test_df.loc[test_df.index[0], 'delta_acc'] = delta_acc
     test_df.loc[test_df.index[0], 'delta_adv'] = delta_adv
     test_df.loc[test_df.index[0], 'acc_adv_training_on_orig'] = acc_adv_training_on_orig
+    test_df.loc[test_df.index[0], 'best_epoch'] = best_epoch
 
     test_df.to_csv(os.getcwd() + r'/adversarial-training/result/seed'+str(seed)+"/"+str(exp_name)+".csv", index=False)
 

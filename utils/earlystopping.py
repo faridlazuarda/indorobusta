@@ -89,7 +89,7 @@ def fine_tuning_model_es(base_model, i2w, train_loader, valid_loader, epochs=5):
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
-
+    best_epoch = 0
 
     for epoch in range(epochs):
         model.train()
@@ -155,6 +155,7 @@ def fine_tuning_model_es(base_model, i2w, train_loader, valid_loader, epochs=5):
 
         if epoch_acc > best_acc:
             best_acc = epoch_acc
+            best_epoch = epoch
             best_model_wts = copy.deepcopy(model.state_dict())
 
         if es.step(epoch_loss):
@@ -163,4 +164,4 @@ def fine_tuning_model_es(base_model, i2w, train_loader, valid_loader, epochs=5):
             break
 
     model.load_state_dict(best_model_wts)
-    return model
+    return model, best_epoch
