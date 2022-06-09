@@ -236,7 +236,7 @@ def main(
     
     adv_training = accuracy_score(test_df[orig_col_label], test_df['adv_pred'])
     delta_acc = test_df.before_attack_acc.values[0] - test_df.after_attack_acc.values[0]
-    delta_adv = test_df.before_attack_acc.values[0] - adv_training 
+    delta_adv = test_df.after_attack_acc.values[0] - adv_training 
     
     acc_adv_training_on_orig = accuracy_score(test_df[orig_col_label], test_df['adv_pred_on_orig'])
     
@@ -275,7 +275,7 @@ if __name__ == "__main__":
         'mbert': 'mBERT'
     }
     
-    intersect = get_intersect(args.seed)
+    intersect = sorted(get_intersect(args.seed))
     
     # print(intersect)
     
@@ -296,78 +296,3 @@ if __name__ == "__main__":
                 exp_name=exp_name,
                 seed=args.seed
             )
-
-    
-    
-    
-    
-    
-    
-
-# def init_model(id_model, downstream_task, seed):
-#     if id_model == "IndoBERT":
-#         tokenizer = BertTokenizer.from_pretrained('indobenchmark/indobert-base-p2')
-#         config = BertConfig.from_pretrained('indobenchmark/indobert-base-p2')
-#         if downstream_task == "sentiment":
-#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
-#         elif downstream_task == "emotion":
-#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
-#         else:
-#             return "Task does not match"
-        
-#         model = BertForSequenceClassification.from_pretrained('indobenchmark/indobert-base-p2', config=config)
-#         # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
-        
-#     elif id_model == "XLM-R":
-#         tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-base')
-#         config = XLMRobertaConfig.from_pretrained("xlm-roberta-base")
-#         if downstream_task == "sentiment":
-#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
-#         elif downstream_task == "emotion":
-#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
-#         else:
-#             return "Task does not match"
-        
-#         model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-base', config=config)
-#         # model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
-        
-#     elif id_model == "XLM-R-Large":
-#         tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-large')
-#         config = XLMRobertaConfig.from_pretrained("xlm-roberta-large")
-#         if downstream_task == "sentiment":
-#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
-#         elif downstream_task == "emotion":
-#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
-#         else:
-#             return "Task does not match"
-
-#         model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-large', config=config)
-#         # model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
-
-#     elif id_model == "mBERT":
-#         tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-uncased')
-#         config = BertConfig.from_pretrained("bert-base-multilingual-uncased")
-#         if downstream_task == "sentiment":
-#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
-#         elif downstream_task == "emotion":
-#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
-#         else:
-#             return "Task does not match"
-        
-#         model = BertForSequenceClassification.from_pretrained('bert-base-multilingual-uncased', config=config)
-#         # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
-        
-#     elif id_model == "IndoBERT-Large":
-#         tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-large-p2")
-#         config = BertConfig.from_pretrained("indobenchmark/indobert-large-p2")
-#         if downstream_task == "sentiment":
-#             config.num_labels = DocumentSentimentDataset.NUM_LABELS
-#         elif downstream_task == "emotion":
-#             config.num_labels = EmotionDetectionDataset.NUM_LABELS
-#         else:
-#             return "Task does not match"
-        
-#         model = BertForSequenceClassification.from_pretrained("indobenchmark/indobert-large-p2", config=config)
-#         # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
-    
-#     return tokenizer, config, model

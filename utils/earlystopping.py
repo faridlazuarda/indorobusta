@@ -161,6 +161,7 @@ def fine_tuning_model_es(base_model, i2w, train_loader, valid_loader, epochs=5):
         if es.step(epoch_loss):
             terminate_training = True
             print('early stop criterion is met, we can stop now')
+            print('best epoch:', best_epoch)
             break
 
     model.load_state_dict(best_model_wts)
