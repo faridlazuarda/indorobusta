@@ -124,6 +124,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+training_with_callbacks/
 
 # Spyder project settings
 .spyderproject
