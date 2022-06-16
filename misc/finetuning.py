@@ -51,10 +51,10 @@ def main(
     use = USE()
     
     finetune_epoch = 0
-    if downstream_task == "sentiment":
-        finetune_epoch = 5
-    if downstream_task == "emotion":
-        finetune_epoch = 10
+    # if downstream_task == "sentiment":
+    #     finetune_epoch = 5
+    # if downstream_task == "emotion":
+    #     finetune_epoch = 10
 
     tokenizer, config, model = init_model(model_target, downstream_task, seed)
     w2i, i2w = load_word_index(downstream_task)
@@ -64,7 +64,7 @@ def main(
     test_dataset, test_loader, test_path = load_dataset_loader(downstream_task, 'test', tokenizer)
 
     finetuned_model = fine_tuning_model(model, i2w, train_loader, valid_loader, finetune_epoch)
-    finetuned_model.save_pretrained(os.getcwd() + r"/models/seed"+str(seed)+ "/"+str(model_target)+"-"+str(downstream_task))
+    finetuned_model.save_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed)+ "/"+str(model_target)+"-"+str(downstream_task))
 
         
 if __name__ == "__main__":
