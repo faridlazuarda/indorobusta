@@ -118,7 +118,7 @@ class EmotionDetectionDataset(Dataset):
         # Load dataset
         dataset = pd.read_csv(path)
         # dataset['label'] = dataset['label'].apply(lambda sen: self.LABEL2INDEX[sen])
-        dataset.to_csv("train_pert_only.csv")
+        # dataset.to_csv("train_pert_only.csv")
         return dataset[["perturbed_text", "label"]]
 
     def __init__(self, dataset_path, tokenizer, no_special_token=False, *args, **kwargs):
@@ -187,19 +187,19 @@ def load_dataset_loader(dataset_id, ds_type, tokenizer, path=None):
     if(dataset_id == 'sentiment'):
         if(ds_type == "train"):
             if path is None:
-                path = './dataset/smsa-document-sentiment/train_preprocess.tsv'
+                path = './dataset/smsa-document-sentiment/train_preprocess.csv'
             # ic(path)
             dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=True)  
         elif(ds_type == "valid"):
             if path is None:
-                path = './dataset/smsa-document-sentiment/valid_preprocess.tsv'
+                path = './dataset/smsa-document-sentiment/valid_preprocess.csv'
             # ic(path)
             dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
         elif(ds_type == "test"):
             if path is None:
-                path = './dataset/smsa-document-sentiment/test_preprocess.tsv'
+                path = './dataset/smsa-document-sentiment/test_preprocess.csv'
             dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
 
@@ -254,7 +254,7 @@ def main(
         orig_col_label = 'sentiment'
         finetuned_model, best_epoch = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15)
         LABEL2INDEX = {'positive': 0, 'neutral': 1, 'negative': 2}
-        test_path_orig = './dataset/smsa-document-sentiment/test_preprocess.tsv'
+        test_path_orig = './dataset/smsa-document-sentiment/test_preprocess.csv'
         test_dataset_orig = DocumentSentimentDatasetOrig(test_path_orig, tokenizer, lowercase=True)
         test_loader_orig = DocumentSentimentDataLoader(dataset=test_dataset_orig, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
     else: 
