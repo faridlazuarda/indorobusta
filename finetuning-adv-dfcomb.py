@@ -114,30 +114,33 @@ class EmotionDetectionDataset(Dataset):
     INDEX2LABEL = {0: 'sadness', 1: 'anger', 2: 'love', 3: 'fear', 4: 'happy'}
     NUM_LABELS = 5
     
-    def load_dataset(self, path, is_train):
-        if is_train:
+    def load_dataset(self, path, dataset_type):
+        # ic(dataset_type)
+        if dataset_type=="train":
             df1 = pd.read_csv('./dataset/emot-emotion-twitter/train_preprocess.csv')
             df1['label'] = df1['label'].apply(lambda sen: self.LABEL2INDEX[sen])
+            # ic(df1.columns)
+            df1.columns = ['label', 'perturbed_text']
             df2 = pd.read_csv(path)[['perturbed_text', 'label']]
-            df2.columns = ['tweet', 'label']
             
             dataset = pd.concat([df1, df2], axis=0).reset_index()
+            # dataset.to_csv("train_perturb.csv")
             # dataset.to_csv("train_combined.csv")
         else:
             dataset = pd.read_csv(path)
         
         # ic(len(dataset), is_train)
-        return dataset[['tweet', 'label']]
+        return dataset[['perturbed_text', 'label']]
 
-    def __init__(self, dataset_path, tokenizer, is_train=False, no_special_token=False, *args, **kwargs):
-        self.data = self.load_dataset(dataset_path, is_train)
+    def __init__(self, dataset_path, tokenizer, dataset_type, no_special_token=False, *args, **kwargs):
+        self.data = self.load_dataset(dataset_path, dataset_type)
         self.tokenizer = tokenizer
         self.no_special_token = no_special_token
         
     def __getitem__(self, index):
-        tweet, label = self.data.loc[index,'tweet'], self.data.loc[index,'label']        
-        subwords = self.tokenizer.encode(tweet, add_special_tokens=not self.no_special_token)
-        return np.array(subwords), np.array(label), tweet
+        perturbed_text, label = self.data.loc[index,'perturbed_text'], self.data.loc[index,'label']        
+        subwords = self.tokenizer.encode(perturbed_text, add_special_tokens=not self.no_special_token)
+        return np.array(subwords), np.array(label), perturbed_text
     
     def __len__(self):
         return len(self.data)
@@ -148,33 +151,32 @@ class DocumentSentimentDataset(Dataset):
     INDEX2LABEL = {0: 'positive', 1: 'neutral', 2: 'negative'}
     NUM_LABELS = 3
     
-    def load_dataset(self, path, is_train):
-        # ic(is_train)
-        if is_train:
+    def load_dataset(self, path, dataset_type):
+        # ic(dataset_type)
+        if dataset_type=="train":
             df1 = pd.read_csv('./dataset/smsa-document-sentiment/train_preprocess.csv')
             # df1['sentiment'] = df1['sentiment'].apply(lambda sen: self.LABEL2INDEX[sen])
+            df2.columns = ['perturbed_text', 'sentiment']
             df2 = pd.read_csv(path)[['perturbed_text', 'sentiment']]
-            df2.columns = ['text', 'sentiment']
             
             dataset = pd.concat([df1, df2], axis=0).reset_index()
+            # dataset.to_csv("train_perturb.csv")
         else:
             dataset = pd.read_csv(path)
             
         # ic(len(dataset), is_train)
-        return dataset[['text', 'sentiment']]
+        return dataset[['perturbed_text', 'sentiment']]
 
-    def __init__(self, dataset_path, tokenizer, is_train=False, no_special_token=False, *args, **kwargs):
-        self.data = self.load_dataset(dataset_path, is_train)
+    def __init__(self, dataset_path, tokenizer, dataset_type, no_special_token=False, *args, **kwargs):
+        self.data = self.load_dataset(dataset_path, dataset_type)
         self.tokenizer = tokenizer
         self.no_special_token = no_special_token
         
     def __getitem__(self, index):
         data = self.data.loc[index,:]
-        text, sentiment = data['text'], data['sentiment']
-        # print(type(text), len(text))
-        # ic
-        subwords = self.tokenizer.encode(text, add_special_tokens=not self.no_special_token)
-        return np.array(subwords), np.array(sentiment), data['text']
+        perturbed_text, sentiment = data['perturbed_text'], data['sentiment']
+        subwords = self.tokenizer.encode(perturbed_text, add_special_tokens=not self.no_special_token)
+        return np.array(subwords), np.array(sentiment), data['perturbed_text']\
     
     def __len__(self):
         return len(self.data)
@@ -201,35 +203,35 @@ def load_dataset_loader(dataset_id, ds_type, tokenizer, path=None):
             if path is None:
                 path = './dataset/smsa-document-sentiment/train_preprocess.csv'
             # ic(path)
-            dataset = DocumentSentimentDataset(path, tokenizer, is_train=True, lowercase=True)
+            dataset = DocumentSentimentDataset(path, tokenizer, dataset_type=ds_type, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=True)  
         elif(ds_type == "valid"):
             if path is None:
                 path = './dataset/smsa-document-sentiment/valid_preprocess.csv'
             # ic(path)
-            dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
+            dataset = DocumentSentimentDataset(path, tokenizer, dataset_type=ds_type, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
         elif(ds_type == "test"):
             if path is None:
                 path = './dataset/smsa-document-sentiment/test_preprocess.csv'
-            dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
+            dataset = DocumentSentimentDataset(path, tokenizer, dataset_type=ds_type, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
 
     elif(dataset_id == 'emotion'):
         if(ds_type == "train"):
             if path is None:
                 path = './dataset/emot-emotion-twitter/train_preprocess.csv'
-            dataset = EmotionDetectionDataset(path, tokenizer, is_train=True, lowercase=True)
+            dataset = EmotionDetectionDataset(path, tokenizer, dataset_type=ds_type, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=True)  
         elif(ds_type == "valid"):
             if path is None:
                 path = './dataset/emot-emotion-twitter/valid_preprocess.csv'
-            dataset = EmotionDetectionDataset(path, tokenizer, lowercase=True)
+            dataset = EmotionDetectionDataset(path, tokenizer, dataset_type=ds_type, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
         elif(ds_type == "test"):
             if path is None:
                 path = './dataset/emot-emotion-twitter/test_preprocess.csv'
-            dataset = EmotionDetectionDataset(path, tokenizer, lowercase=True)
+            dataset = EmotionDetectionDataset(path, tokenizer, dataset_type=ds_type, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
     
     return dataset, loader, dataset_path
@@ -255,28 +257,28 @@ def main(
     testpath = os.getcwd() + r'/result/seed'+str(seed)+"/test/"+exp_name+"-test"+".csv"
         
     _, train_loader, _ = load_dataset_loader(downstream_task, 'train', tokenizer, trainpath)
-    _, test_loader, _ = load_dataset_loader(downstream_task, 'test', tokenizer, testpath)
+    test_dataset, test_loader, _ = load_dataset_loader(downstream_task, 'test', tokenizer, testpath)
     
     
     
     if "sentiment" in trainpath: 
         # text = 'text'
         orig_col_label = 'sentiment'
-        finetuned_model, best_epoch = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15)
+        finetuned_model, best_epoch = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15, patience=5)
         LABEL2INDEX = {'positive': 0, 'neutral': 1, 'negative': 2}
         test_path_orig = './dataset/smsa-document-sentiment/test_preprocess.tsv'
-        test_dataset_orig = DocumentSentimentDatasetOrig(test_path_orig, tokenizer, is_train=False, lowercase=True)
+        test_dataset_orig = DocumentSentimentDatasetOrig(test_path_orig, tokenizer, lowercase=True)
         test_loader_orig = DocumentSentimentDataLoader(dataset=test_dataset_orig, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
     else: 
         # text = 'tweet'
         orig_col_label = 'label'
-        finetuned_model, best_epoch = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15)
+        finetuned_model, best_epoch = fine_tuning_model_es(model, i2w, train_loader, test_loader, epochs=15, patience=5)
         LABEL2INDEX = {'sadness': 0, 'anger': 1, 'love': 2, 'fear': 3, 'happy': 4}
-        test_path_orig = './dataset/emot-emotion-twitter/test_preprocess.tsv'
-        test_dataset_orig = EmotionDetectionDatasetOrig(test_path_orig, tokenizer, is_train=False, lowercase=True)
+        test_path_orig = './dataset/emot-emotion-twitter/test_preprocess.csv'
+        test_dataset_orig = EmotionDetectionDatasetOrig(test_path_orig, tokenizer, lowercase=True)
         test_loader_orig = EmotionDetectionDataLoader(dataset=test_dataset_orig, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
     
-    test_df = pd.read_csv(os.getcwd() + r'/result/seed'+str(seed)+"/test/"+exp_name+"-test"+".csv")
+    # test_df = pd.read_csv(os.getcwd() + r'/result/seed'+str(seed)+"/test/"+exp_name+"-test"+".csv")
     
     # prediksi adv_training vs original finetuned model on perturbed data
     total_loss, total_correct, total_labels = 0, 0, 0
@@ -307,6 +309,13 @@ def main(
     # Save prediction
     temp_df_orig = pd.DataFrame({'label':list_hyp}).reset_index()
     temp_df_orig['label'] = temp_df_orig['label'].apply(lambda sen: LABEL2INDEX[sen])
+    
+    
+    test_dataset_orig.load_dataset(test_path_orig).to_csv("test_dataset_orig.csv", index=False)
+    test_dataset.load_dataset(testpath, dataset_type="test").to_csv("test_dataset_perturb.csv", index=False)
+    # test_dataset_perturb.to_csv("test_dataset_perturb.csv", index=False)
+    # temp_df_orig.to_csv("temp_df_orig.csv", index=False)
+    # ic(temp_df_orig)
     
     
     test_df = pd.read_csv(os.getcwd() + r'/result/seed'+str(seed)+"/test/"+exp_name+"-test"+".csv")

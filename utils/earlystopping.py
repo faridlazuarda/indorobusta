@@ -80,11 +80,11 @@ class EarlyStopping(object):
                             best * min_delta / 100)
                 
                 
-def fine_tuning_model_es(base_model, i2w, train_loader, valid_loader, epochs=5):
+def fine_tuning_model_es(base_model, i2w, train_loader, valid_loader, epochs=5, patience=5):
     model = base_model.cuda()
     optimizer = optim.Adam(model.parameters(), lr=3e-6)
 
-    es = EarlyStopping(patience=5)
+    es = EarlyStopping(patience=patience)
     # n_epochs = 15
 
     best_model_wts = copy.deepcopy(model.state_dict())
