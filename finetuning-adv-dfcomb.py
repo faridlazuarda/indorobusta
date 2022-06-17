@@ -156,7 +156,7 @@ class DocumentSentimentDataset(Dataset):
         if dataset_type=="train":
             df1 = pd.read_csv('./dataset/smsa-document-sentiment/train_preprocess.csv')
             # df1['sentiment'] = df1['sentiment'].apply(lambda sen: self.LABEL2INDEX[sen])
-            df2.columns = ['perturbed_text', 'sentiment']
+            df1.columns = ['perturbed_text', 'sentiment']
             df2 = pd.read_csv(path)[['perturbed_text', 'sentiment']]
             
             dataset = pd.concat([df1, df2], axis=0).reset_index()
