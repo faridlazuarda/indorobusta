@@ -6,7 +6,7 @@ from icecream import ic
 
 # Get the list of all files and directories
 def result_summary(seed):
-    path = str(os.getcwd()) + "/adversarial-training/result/seed" + str(seed) + "/"
+    path = str(os.getcwd()) + "/adversarial-training/result/2_step/seed" + str(seed) + "/"
     dir_list = os.listdir(path)
     result = pd.DataFrame()
     
@@ -59,7 +59,7 @@ def result_summary(seed):
     ic(seed)
     # result.to_csv("result-analysis/" + str() + ".csv")
     result = result.sort_values(by=['model_target', 'downstream_task', 'codemix_lang', 'perturb_ratio'])
-    result.to_csv(os.getcwd() + r'/result-analysis/adv-training/seed'+str(seed)+".csv", index=False)
+    result.to_csv(os.getcwd() + r'/result-analysis/adv-training/seed'+str(seed)+"-2_step.csv", index=False)
 
 if __name__ == "__main__":
     result_summary(
