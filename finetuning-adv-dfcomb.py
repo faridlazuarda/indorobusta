@@ -311,8 +311,8 @@ def main(
     temp_df_orig['label'] = temp_df_orig['label'].apply(lambda sen: LABEL2INDEX[sen])
     
     
-    test_dataset_orig.load_dataset(test_path_orig).to_csv("test_dataset_orig.csv", index=False)
-    test_dataset.load_dataset(testpath, dataset_type="test").to_csv("test_dataset_perturb.csv", index=False)
+    # test_dataset_orig.load_dataset(test_path_orig).to_csv("test_dataset_orig.csv", index=False)
+    # test_dataset.load_dataset(testpath, dataset_type="test").to_csv("test_dataset_perturb.csv", index=False)
     # test_dataset_perturb.to_csv("test_dataset_perturb.csv", index=False)
     # temp_df_orig.to_csv("temp_df_orig.csv", index=False)
     # ic(temp_df_orig)
