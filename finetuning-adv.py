@@ -246,7 +246,7 @@ def main(
     test_df.loc[test_df.index[0], 'acc_adv_training_on_orig'] = acc_adv_training_on_orig
     test_df.loc[test_df.index[0], 'best_epoch'] = best_epoch
 
-    test_df.to_csv(os.getcwd() + r'/adversarial-training/result/seed'+str(seed)+"/"+str(exp_name)+".csv", index=False)
+    test_df.to_csv(os.getcwd() + r'/adversarial-training/result/2_step/seed'+str(seed)+"/"+str(exp_name)+".csv", index=False)
 
     # test_df.to_csv("test_test.csv", index=False)
 
@@ -264,35 +264,42 @@ def get_intersect(seed):
     return list(set(dir_list_train) & set(dir_list_test))
   
 
-if __name__ == "__main__":   
-    args = get_args()
+if __name__ == "__main__":
     
-    model_map = {
-        'indobert': 'IndoBERT',
-        'indobertlarge': 'IndoBERT-Large',
-        'xlmr': 'XLM-R',
-        'xlmrlarge': 'XLM-R-Large',
-        'mbert': 'mBERT'
-    }
+    main(
+        model_target='XLM-R-Large',
+        downstream_task='emotion',
+        exp_name='xlmrlarge-emotion-codemixing-su-adv-0.8',
+        seed=24032022
+    )
+#     args = get_args()
     
-    intersect = sorted(get_intersect(args.seed))
+#     model_map = {
+#         'indobert': 'IndoBERT',
+#         'indobertlarge': 'IndoBERT-Large',
+#         'xlmr': 'XLM-R',
+#         'xlmrlarge': 'XLM-R-Large',
+#         'mbert': 'mBERT'
+#     }
     
-    # print(intersect)
+#     intersect = sorted(get_intersect(args.seed))
     
-    path_adv = os.getcwd() + r'/adversarial-training/result/seed'+str(args.seed)+"/"
-    dir_list_adv = [f[:-4] for f in os.listdir(path_adv) if "ipynb" not in f]
+#     # print(intersect)
     
-    for exp_name in intersect:
-        if exp_name in intersect and exp_name not in dir_list_adv and 'ipynb' not in exp_name:
-            # print(exp_name)
-            names = exp_name.split("-")
-            model_tgt = names[0]
-            downstream_task = names[1]
-            model_target = model_map[model_tgt]
-            print(exp_name.split("-"))
-            main(
-                model_target=model_target,
-                downstream_task=downstream_task,
-                exp_name=exp_name,
-                seed=args.seed
-            )
+#     path_adv = os.getcwd() + r'/adversarial-training/result/seed'+str(args.seed)+"/"
+#     dir_list_adv = [f[:-4] for f in os.listdir(path_adv) if "ipynb" not in f]
+    
+#     for exp_name in intersect:
+#         if exp_name in intersect and exp_name not in dir_list_adv and 'ipynb' not in exp_name:
+#             # print(exp_name)
+#             names = exp_name.split("-")
+#             model_tgt = names[0]
+#             downstream_task = names[1]
+#             model_target = model_map[model_tgt]
+#             print(exp_name.split("-"))
+#             main(
+#                 model_target=model_target,
+#                 downstream_task=downstream_task,
+#                 exp_name=exp_name,
+#                 seed=args.seed
+#             )

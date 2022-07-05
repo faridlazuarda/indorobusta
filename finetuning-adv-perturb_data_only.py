@@ -47,8 +47,8 @@ def init_model(id_model, downstream_task, seed):
         else:
             return "Task does not match"
         
-        # model = BertForSequenceClassification.from_pretrained('indobenchmark/indobert-base-p2', config=config)
-        model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        model = BertForSequenceClassification.from_pretrained('indobenchmark/indobert-base-p2', config=config)
+        # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
         
     elif id_model == "XLM-R":
         tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-base', local_files_only=True)
@@ -60,8 +60,8 @@ def init_model(id_model, downstream_task, seed):
         else:
             return "Task does not match"
         
-        # model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-base', config=config)
-        model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-base', config=config)
+        # model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
         
     elif id_model == "XLM-R-Large":
         tokenizer = XLMRobertaTokenizer.from_pretrained('xlm-roberta-large', local_files_only=True)
@@ -73,8 +73,8 @@ def init_model(id_model, downstream_task, seed):
         else:
             return "Task does not match"
 
-        # model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-large', config=config)
-        model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        model = XLMRobertaForSequenceClassification.from_pretrained('xlm-roberta-large', config=config)
+        # model = XLMRobertaForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
 
     elif id_model == "mBERT":
         # ic("mBERT")
@@ -87,8 +87,8 @@ def init_model(id_model, downstream_task, seed):
         else:
             return "Task does not match"
         
-        # model = BertForSequenceClassification.from_pretrained('bert-base-multilingual-uncased', config=config)
-        model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        model = BertForSequenceClassification.from_pretrained('bert-base-multilingual-uncased', config=config)
+        # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
         
     elif id_model == "IndoBERT-Large":
         tokenizer = BertTokenizer.from_pretrained("indobenchmark/indobert-large-p2", local_files_only=True)
@@ -100,8 +100,8 @@ def init_model(id_model, downstream_task, seed):
         else:
             return "Task does not match"
         
-        # model = BertForSequenceClassification.from_pretrained("indobenchmark/indobert-large-p2", config=config)
-        model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
+        model = BertForSequenceClassification.from_pretrained("indobenchmark/indobert-large-p2", config=config)
+        # model = BertForSequenceClassification.from_pretrained(os.getcwd() + r"/models/raw/seed"+str(seed) + "/"+str(id_model)+"-"+str(downstream_task))
     
     return tokenizer, config, model
 
@@ -186,8 +186,8 @@ def load_dataset_loader(dataset_id, ds_type, tokenizer, path=None):
     loader = None
     if(dataset_id == 'sentiment'):
         if(ds_type == "train"):
-            if path is None:
-                path = './dataset/smsa-document-sentiment/train_preprocess.csv'
+            # if path is None:
+            #     path = './dataset/smsa-document-sentiment/train_preprocess.csv'
             # ic(path)
             dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=True)  
@@ -198,15 +198,15 @@ def load_dataset_loader(dataset_id, ds_type, tokenizer, path=None):
             dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
         elif(ds_type == "test"):
-            if path is None:
-                path = './dataset/smsa-document-sentiment/test_preprocess.csv'
+            # if path is None:
+            #     path = './dataset/smsa-document-sentiment/test_preprocess.csv'
             dataset = DocumentSentimentDataset(path, tokenizer, lowercase=True)
             loader = DocumentSentimentDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=False)
 
     elif(dataset_id == 'emotion'):
         if(ds_type == "train"):
-            if path is None:
-                path = './dataset/emot-emotion-twitter/train_preprocess.csv'
+            # if path is None:
+            #     path = './dataset/emot-emotion-twitter/train_preprocess.csv'
             dataset = EmotionDetectionDataset(path, tokenizer, lowercase=True)
             loader = EmotionDetectionDataLoader(dataset=dataset, max_seq_len=512, batch_size=32, num_workers=80, shuffle=True)  
         elif(ds_type == "valid"):
@@ -242,8 +242,8 @@ def main(
     trainpath = os.getcwd() + r'/result/seed'+str(seed)+"/train/"+exp_name+"-train"+".csv"
     testpath = os.getcwd() + r'/result/seed'+str(seed)+"/test/"+exp_name+"-test"+".csv"
         
-    _, train_loader, _ = load_dataset_loader(downstream_task, 'train', tokenizer, trainpath)
-    _, test_loader, _ = load_dataset_loader(downstream_task, 'test', tokenizer, testpath)
+    _, train_loader, _ = load_dataset_loader(downstream_task, 'train', tokenizer, path=trainpath)
+    _, test_loader, _ = load_dataset_loader(downstream_task, 'test', tokenizer, path=testpath)
     # _t, test_loader_orig, _ = load_dataset_loader(downstream_task, 'test', tokenizer)
     # test_dataset, test_loader, test_path = load_dataset_loader(downstream_task, 'test', tokenizer)
     
@@ -335,7 +335,8 @@ def get_intersect(seed):
     return list(set(dir_list_train) & set(dir_list_test))
   
 
-if __name__ == "__main__":   
+if __name__ == "__main__":
+    
     args = get_args()
     
     model_map = {
@@ -369,3 +370,5 @@ if __name__ == "__main__":
                 exp_name=exp_name,
                 seed=args.seed
             )
+            
+        intersect = sorted(get_intersect(args.seed))
