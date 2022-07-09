@@ -1,0 +1,6 @@
+Rating (1-5)
+1 - tidak natural (kalimat tidak bisa dimengerti)
+2 - kurang natural (kalimat bisa dimengerti walaupun aneh)
+3 - cukup natural (kalimat bisa dimengerti walau tidak tepat tepat penggunaan katanya)
+4 - natural tidak sempurna (kalimat mudah dimengerti, kata2 yg digunakan ada yg sedikit tidak tepat)
+5 - natural ( kalimat mudah dimengerti dan tepat penggunaannya)
